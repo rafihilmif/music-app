@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Head from 'next/head';
-import Link from 'next/link';
-import { FaSpotify } from 'react-icons/fa';
-import { FcGoogle } from 'react-icons/fc';
 import Musickvlt from '../public/images/icons/musickvlt.png';
-import { baseURL } from '@/baseURL';
 import { signIn, useSession } from 'next-auth/react';
 
 export default function Login() {

@@ -95,7 +95,7 @@ const SignUpFans = () => {
           <p className="h-[0.05rem] w-full bg-slate-400"></p>
           <h1 className="mt-6 text-xl font-bold">Do you have account?</h1>
           <a
-            onClick={(e) => router.push('/login')}
+            onClick={(e) => router.push('/')}
             className="mt-6 flex w-full cursor-pointer items-center justify-center rounded-full border-slate-500 bg-white py-3 text-sm uppercase text-slate-500 transition-transform hover:scale-105"
           >
             Sign in for Musickvlt

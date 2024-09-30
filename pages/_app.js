@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }) {
     <>
       <SessionProvider session={pageProps.session}>
         <PlayerContextProvider>
-          {router.pathname === '/login' ||
+          {router.pathname === '/' ||
           router.pathname === '/signup/artist' ||
           router.pathname === '/signup/fans' ? (
             <Component {...pageProps} />

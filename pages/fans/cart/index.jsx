@@ -31,6 +31,13 @@ export default function Index() {
   }, [session]);
 
   useEffect(() => {
+    if (session.user.role === "artist") {
+      router.push('/login')
+    }
+  }, [session.user.role]);
+  
+
+  useEffect(() => {
     const fetchDataCart = async () => {
       try {
         const response = await axios.get(`${baseURL}/fans/cart?id=${idFans}`);
@@ -295,28 +302,28 @@ export default function Index() {
   );
 }
 
-export async function getServerSideProps(ctx) {
-  const session = await getSession(ctx);
+// export async function getServerSideProps(ctx) {
+//   const session = await getSession(ctx);
 
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
-    };
-  }
-  if (session.user.role === 'artist') {
-    return {
-      redirect: {
-        destination: '/artist',
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {
-      ...session,
-    },
-  };
-}
+//   if (!session) {
+//     return {
+//       redirect: {
+//         destination: '/login',
+//         permanent: false,
+//       },
+//     };
+//   }
+//   if (session.user.role === 'artist') {
+//     return {
+//       redirect: {
+//         destination: '/artist',
+//         permanent: false,
+//       },
+//     };
+//   }
+//   return {
+//     props: {
+//       ...session,
+//     },
+//   };
+// }

@@ -22,16 +22,6 @@ export default function MainLayoutFans() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      return;
-    } else if (status === 'authenticated' && session.user.role === 'artist') {
-      router.push('/artist');
-    } else if (status === 'authenticated' && session.user.role === 'fans') {
-      router.push('/fans/home');
-    }
-  }, [session]);
-  
-  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -274,7 +264,14 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
-
+  if (session.user.role === 'artist') {
+    return {
+      redirect: {
+        destination: '/artist',
+        permanent: false,
+      },
+    };
+  }
   return {
     props: {
       ...session,

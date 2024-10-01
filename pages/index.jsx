@@ -64,7 +64,7 @@ export default function index({ children }) {
               />
             </div>
             <button
-              type="submit"
+              type="button"
               onClick={handleLogin}
               className="text-md text-dark w-full rounded-full bg-[#D1E9F6] px-12 py-3 font-bold uppercase transition-transform hover:scale-105"
             >

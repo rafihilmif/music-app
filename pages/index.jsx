@@ -19,16 +19,6 @@ export default function index({ children }) {
     });
   };
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      return;
-    } else if (status === 'authenticated' && session.user.role === 'artist') {
-      router.push('/artist');
-    } else if (status === 'authenticated' && session.user.role === 'fans') {
-      router.push('/fans/home');
-    }
-  }, [status]);
-
   // useEffect(() => {
   //   if (status === 'unauthenticated') {
   //     return;

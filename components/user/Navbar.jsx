@@ -12,6 +12,7 @@ import { baseURLFile } from '@/baseURLFile';
 import axios from 'axios';
 import { signOut, useSession } from 'next-auth/react';
 import debounce from 'lodash.debounce';
+import { redirect } from 'next/dist/server/api-utils';
 
 export default function Navbar() {
   const router = useRouter();
@@ -132,6 +133,10 @@ export default function Navbar() {
       style: 'currency',
       currency: 'IDR',
     }).format(value);
+  };
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/' });
   };
 
   return (
@@ -338,7 +343,7 @@ export default function Navbar() {
                 <a href="/artist/profile">Profile</a>
               </div>
               <div
-                onClick={() => signOut()}
+                onClick={() => handleSignOut()}
                 className="block cursor-pointer px-4 py-2 text-white hover:bg-gray-500"
               >
                 Logout

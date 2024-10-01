@@ -31,17 +31,12 @@ export default function detailMerchById() {
 
   const [selectedSize, setSelectedSize] = useState([]);
 
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   useEffect(() => {
     if (status === 'authenticated' && session.user.role === 'fans') {
       const fetchDataFans = async () => {
         try {
           const response = await axios.get(
-            `${baseURL}/detail/fans?email=${email}`,
+            `${baseURL}/detail/fans?email=${session.user.email}`,
           );
           setIdFans(response.data.id_fans);
         } catch (error) {
@@ -50,7 +45,7 @@ export default function detailMerchById() {
       };
       fetchDataFans();
     }
-  }, [session, status, email]);
+  }, [session, status]);
 
   const fetchImageData = async (id) => {
     try {
@@ -151,7 +146,7 @@ export default function detailMerchById() {
       setSelectedSize(size);
     }
   };
-  
+
   const addToCart = async () => {
     const sizeStock = {
       S: sizeS,
@@ -446,7 +441,14 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
-
+  if (session.user.role === 'artist') {
+    return {
+      redirect: {
+        destination: '/artist',
+        permanent: false,
+      },
+    };
+  }
   return {
     props: {
       ...session,

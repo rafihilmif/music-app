@@ -166,10 +166,14 @@ export default function index() {
     }
 
     data.append('status', newStatus);
-    await axios
-      .put(`${baseURL}/artist/song/update?id=${id}`, data)
-      .then(alert('Successfully updated song'), router.reload())
-      .catch((err) => console.error('error' + err));
+    try {
+      await axios
+        .put(`${baseURL}/artist/song/update?id=${id}`, data)
+        .then(alert('Successfully updated song'), router.reload());
+    } catch (error) {
+      console.error('Error updating song:', error);
+      alert('Error updating song: ' + error.message);
+    }     
   };
 
   return (

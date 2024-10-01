@@ -228,7 +228,7 @@ export default function index() {
         setIsFollowed(true);
       }
     } catch (error) {
-      console.error('Error following the artist:', error);
+      alert('Error following the artist:', error);
     }
   };
   const handleUnfollow = async () => {

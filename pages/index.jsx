@@ -12,23 +12,35 @@ export default function index({ children }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    const result = await signIn('credentials', {
+    await signIn('credentials', {
       redirect: false,
       email,
       password,
     });
   };
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       return;
     } else if (status === 'authenticated' && session.user.role === 'artist') {
-      localStorage.setItem('email', JSON.stringify(session.user.email));
       router.push('/artist');
     } else if (status === 'authenticated' && session.user.role === 'fans') {
-      localStorage.setItem('email', JSON.stringify(session.user.email));
       router.push('/fans/home');
     }
   }, [status]);
+
+  // useEffect(() => {
+  //   if (status === 'unauthenticated') {
+  //     return;
+  //   } else if (status === 'authenticated' && session.user.role === 'artist') {
+  //     localStorage.setItem('email', JSON.stringify(session.user.email));
+  //     router.push('/artist');
+  //   } else if (status === 'authenticated' && session.user.role === 'fans') {
+  //     localStorage.setItem('email', JSON.stringify(session.user.email));
+  //     router.push('/fans/home');
+  //   }
+  // }, [status]);
+
   return (
     <>
       <div className="flex h-full w-full flex-col items-center px-3 sm:px-8">

@@ -151,6 +151,7 @@ export default function detailMerchById() {
       setSelectedSize(size);
     }
   };
+  
   const addToCart = async () => {
     const sizeStock = {
       S: sizeS,
@@ -177,17 +178,9 @@ export default function detailMerchById() {
           qty: count,
           size: isGarmentType ? selectedSize : null,
         })
-        .then(alert('Berhasil menambahkan barang pada cart'), router.reload());
+        .then(alert('Successfully add item to cart'), router.reload());
     } catch (error) {
-      if (error.response) {
-        const message =
-          error.response.data.message || 'Gagal menambahkan barang pada cart';
-        alert(message);
-      } else if (error.request) {
-        alert('Terjadi kesalahan saat mengirim permintaan ke server.');
-      } else {
-        alert('Terjadi kesalahan: ' + error.message);
-      }
+      alert('Terjadi kesalahan: ' + error.message);
     }
   };
 

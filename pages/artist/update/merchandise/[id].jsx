@@ -127,18 +127,15 @@ export default function index() {
 
   const handleUpdate = async () => {
     const data = new FormData();
-
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
 
     data.append('status', newStatus);
-
     newImage.forEach(({ file, number }) => {
       data.append('image', file);
       data.append('number', number);
     });
-
     try {
       await axios.put(`${baseURL}/artist/merch/update?id=${id}`, data, {
         headers: {

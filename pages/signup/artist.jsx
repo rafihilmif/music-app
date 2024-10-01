@@ -32,7 +32,7 @@ function SignUpArtist() {
   const handleRegister = async () => {
     try {
       await axios
-        .post('http://localhost:3030/api/register/artist', {
+        .post(`${baseURL}/api/register/artist`, {
           email: email,
           password: password,
           confirm_password: confirm_password,
@@ -47,6 +47,7 @@ function SignUpArtist() {
       console.error('Error during registration:', error.response.data.error);
     }
   };
+  
   return (
     <div className="flex h-screen w-full flex-col items-center overflow-auto px-3 sm:px-8">
       <Head>

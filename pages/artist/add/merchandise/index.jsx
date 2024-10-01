@@ -22,7 +22,7 @@ export default function index() {
   const [sizeM, setSizeM] = useState(0);
   const [sizeL, setSizeL] = useState(0);
   const [sizeXL, setSizeXL] = useState(0);
-  const [sizeStock, setStock] = useState(0);
+  const [stock, setStock] = useState(0);
   const [price, setPrice] = useState(0);
   const [status, setStatus] = useState();
 
@@ -118,7 +118,7 @@ export default function index() {
       formData.append('sizeM', 0);
       formData.append('sizeL', 0);
       formData.append('sizeXL', 0);
-      formData.append('stock', sizeStock);
+      formData.append('stock', stock);
     } else {
       const totalStock =
         parseInt(sizeS) + parseInt(sizeM) + parseInt(sizeL) + parseInt(sizeXL);

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
+import { baseURL } from '@/baseURL';
 import Musickvlt from '../../public/images/icons/musickvlt.png';
 import axios from 'axios';
 
@@ -17,7 +18,7 @@ const SignUpFans = () => {
   const handleRegister = async () => {
     try {
       await axios
-        .post('http://localhost:3030/api/register/fans', {
+        .post(`${baseURL}/api/register/fans`, {
           email: email,
           username: username,
           confirm_password: confirm_password,

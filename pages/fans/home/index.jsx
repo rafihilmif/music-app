@@ -9,7 +9,7 @@ import { baseURLFile } from '@/baseURLFile';
 
 export default function MainLayoutFans() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [id, setId] = useState('');
   const [userName, setUserName] = useState();
 
@@ -21,6 +21,16 @@ export default function MainLayoutFans() {
 
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      return;
+    } else if (status === 'authenticated' && session.user.role === 'artist') {
+      router.push('/artist');
+    } else if (status === 'authenticated' && session.user.role === 'fans') {
+      router.push('/fans/home');
+    }
+  }, [session]);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {

@@ -27,10 +27,6 @@ export default function Sidebar() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [id, setId] = useState();
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
 
   const [role, setRole] = useState();
 
@@ -45,16 +41,18 @@ export default function Sidebar() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status === 'authenticated' && session.user && email) {
+      if (status === 'authenticated') {
         try {
           let response;
           if (session.user.role === 'artist') {
             response = await axios.get(
-              `${baseURL}/detail/artist?email=${email}`,
+              `${baseURL}/detail/artist?email=${session.user.email}`,
             );
             setId(response.data.id_artist);
           } else if (session.user.role === 'fans') {
-            response = await axios.get(`${baseURL}/detail/fans?email=${email}`);
+            response = await axios.get(
+              `${baseURL}/detail/fans?email=${session.user.email}`,
+            );
             setId(response.data.id_fans);
           }
         } catch (error) {
@@ -63,7 +61,7 @@ export default function Sidebar() {
       }
     };
     fetchData();
-  }, [email, status, session]);
+  }, [status, session]);
 
   useEffect(() => {
     const fetchDataPlaylist = async () => {

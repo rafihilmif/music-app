@@ -128,6 +128,11 @@ export default function MainLayoutFans() {
       return [];
     }
   };
+
+  useEffect(() => {
+    console.log(dataArtistFollowed);
+  }, [dataArtistFollowed]);
+
   return (
     <>
       <Navbar />
@@ -148,8 +153,8 @@ export default function MainLayoutFans() {
 
         <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
           {dataArtistFollowed.map((item) => (
-            <div
-              key={item.id_follow}
+            <a
+              href={`/profile/${item.id_artist}`}
               className="flex cursor-pointer items-center rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
             >
               <img
@@ -157,7 +162,7 @@ export default function MainLayoutFans() {
                 className="mr-4 h-12 w-12"
               />
               <span className="flex-grow truncate">{item.name}</span>
-            </div>
+            </a>
           ))}
         </div>
 
@@ -170,8 +175,8 @@ export default function MainLayoutFans() {
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 ">
             {dataRandomPlaylist.map((item) => (
-              <div
-                key={item.id_playlist}
+              <a
+                href={`/playlist/${item.id_playlist}`}
                 className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
               >
                 <img
@@ -180,7 +185,7 @@ export default function MainLayoutFans() {
                 />
                 <h3 className="mb-2 truncate font-bold">{item.name}</h3>
                 <p className="line-clamp-2 text-sm text-gray-400">playlist</p>
-              </div>
+              </a>
             ))}
           </div>
         </div>

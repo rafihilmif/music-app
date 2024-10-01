@@ -5,20 +5,16 @@ import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Navbar from '@/components/user/Navbar';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 export default function index() {
   const router = useRouter();
-  const [data, setData] = useState([]);
+  const { data: session, status } = useSession();
+
+  const [dataAlbum, setDataAlbum] = useState([]);
   const [id, setId] = useState();
   const [totalAlbum, setTotalAlbum] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   const observer = useRef();
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
@@ -29,7 +25,7 @@ export default function index() {
         const response = await axios.get(
           `${baseURL}/artist/collection/album?id=${id}&page=${page}`,
         );
-        setData((prevData) => [...prevData, ...response.data.data]);
+        setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -46,7 +42,7 @@ export default function index() {
     const fetchArtistData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
+          `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setId(response.data.id_artist);
       } catch (error) {
@@ -54,7 +50,7 @@ export default function index() {
       }
     };
     fetchArtistData();
-  }, [email]);
+  }, [session]);
 
   useEffect(() => {
     if (id) {
@@ -67,25 +63,25 @@ export default function index() {
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && data.length < totalAlbum) {
+        if (entries[0].isIntersecting && dataAlbum.length < totalAlbum) {
           setCurrentPage((prevPage) => prevPage + 1);
         }
       });
       if (node) observer.current.observe(node);
     },
-    [isLoading, totalAlbum, data.length],
+    [isLoading, totalAlbum, dataAlbum.length],
   );
 
   const handleFilterAll = useCallback(
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataAlbum([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/album?id=${id}&page=${page}`,
         );
-        setData((prevData) => [...prevData, ...response.data.data]);
+        setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -102,12 +98,12 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataAlbum([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/album/sort/new?id=${id}&page=${page}`,
         );
-        setData((prevData) => [...prevData, ...response.data.data]);
+        setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -124,12 +120,12 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataAlbum([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/album/sort/old?id=${id}&page=${page}`,
         );
-        setData((prevData) => [...prevData, ...response.data.data]);
+        setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -172,7 +168,7 @@ export default function index() {
               </div>
             </div>
             <div className="grid flex-grow grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-              {data.map((item, i) => (
+              {dataAlbum.map((item, i) => (
                 <a key={i} href={`/album/${item.id_album}`}>
                   <div
                     onMouseEnter={() => setHoveredIndex(i)}

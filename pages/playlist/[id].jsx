@@ -44,32 +44,27 @@ export default function Index() {
     fetchDataPlaylist();
   }, [id]);
 
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   useEffect(() => {
     const fetchDataOwnerCheck = async () => {
-      if (status === 'authenticated' && session.user.email === email) {
-        try {
-          let response;
-          if (session.user.role === 'artist') {
-            response = await axios.get(
-              `${baseURL}/detail/artist?email=${email}`,
-            );
-            setIdOwnerCheck(response.data.id_artist);
-          } else if (session.user.role === 'fans') {
-            response = await axios.get(`${baseURL}/detail/fans?email=${email}`);
-            setIdOwnerCheck(response.data.id_fans);
-          }
-        } catch (error) {
-          console.error('Error fetching data:', error);
+      try {
+        let response;
+        if (session.user.role === 'artist') {
+          response = await axios.get(
+            `${baseURL}/detail/artist?email=${session.user.email}`,
+          );
+          setIdOwnerCheck(response.data.id_artist);
+        } else if (session.user.role === 'fans') {
+          response = await axios.get(
+            `${baseURL}/detail/fans?email=${session.user.email}`,
+          );
+          setIdOwnerCheck(response.data.id_fans);
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
     fetchDataOwnerCheck();
-  }, [email, status, session]);
+  }, [status, session]);
 
   useEffect(() => {
     const fetchDataOwner = async () => {

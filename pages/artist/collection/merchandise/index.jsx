@@ -5,20 +5,17 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 
 export default function index() {
-  const [data, setData] = useState([]);
+  const { data: session, status } = useSession();
+
+  const [dataMerchandise, setDataMerchandise] = useState([]);
   const [id, setId] = useState();
   const [sort, setSort] = useState();
   const [totalMerchandise, setTotalMerchandise] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
 
   const observer = useRef();
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -51,7 +48,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -68,7 +68,7 @@ export default function index() {
     const fetchArtistData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
+          `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setId(response.data.id_artist);
       } catch (error) {
@@ -76,7 +76,7 @@ export default function index() {
       }
     };
     fetchArtistData();
-  }, [email]);
+  }, [session]);
 
   useEffect(() => {
     if (id) {
@@ -89,20 +89,23 @@ export default function index() {
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && data.length < totalMerchandise) {
+        if (
+          entries[0].isIntersecting &&
+          dataMerchandise.length < totalMerchandise
+        ) {
           setCurrentPage((prevPage) => prevPage + 1);
         }
       });
       if (node) observer.current.observe(node);
     },
-    [isLoading, totalMerchandise, data.length],
+    [isLoading, totalMerchandise, dataMerchandise.length],
   );
 
   const handleFilterAll = useCallback(
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataMerchandise([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise?id=${id}&page=${page}`,
@@ -116,7 +119,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -132,7 +138,7 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataMerchandise([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/tshirt?id=${id}&page=${page}`,
@@ -146,7 +152,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -162,7 +171,7 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataMerchandise([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/longsleeve?id=${id}&page=${page}`,
@@ -176,7 +185,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -192,7 +204,7 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataMerchandise([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/zipper?id=${id}&page=${page}`,
@@ -206,7 +218,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -222,7 +237,7 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataMerchandise([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/hoodie?id=${id}&page=${page}`,
@@ -236,7 +251,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -252,7 +270,7 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataMerchandise([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/sweatshirt?id=${id}&page=${page}`,
@@ -266,7 +284,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -283,7 +304,7 @@ export default function index() {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataMerchandise([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/accessories?id=${id}&page=${page}`,
@@ -297,7 +318,10 @@ export default function index() {
           }),
         );
 
-        setData((prevData) => [...prevData, ...updatedMerchandiseData]);
+        setDataMerchandise((prevData) => [
+          ...prevData,
+          ...updatedMerchandiseData,
+        ]);
         setTotalMerchandise(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -363,7 +387,7 @@ export default function index() {
               </div>
             </div>
             <div className="grid flex-grow grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-              {data.map((item, i) => (
+              {dataMerchandise.map((item, i) => (
                 <a key={i} href={`/detail/merchandise/${item.id_merchandise}`}>
                   <div
                     onMouseEnter={() => setHoveredIndex(i)}

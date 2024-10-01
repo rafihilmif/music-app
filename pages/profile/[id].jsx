@@ -33,23 +33,20 @@ export default function index() {
 
   const [dataMerchandise, setDataMerchandise] = useState([]);
 
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   useEffect(() => {
     const fetchDataHasLogin = async () => {
-      if (status === 'authenticated' && session.user.email === email) {
+      if (status === 'authenticated') {
         try {
           let response;
           if (session.user.role === 'artist') {
             response = await axios.get(
-              `${baseURL}/detail/artist?email=${email}`,
+              `${baseURL}/detail/artist?email=${session.user.email}`,
             );
             setUserHasLogin(response.data.username);
           } else if (session.user.role === 'fans') {
-            response = await axios.get(`${baseURL}/detail/fans?email=${email}`);
+            response = await axios.get(
+              `${baseURL}/detail/fans?email=${session.user.email}`,
+            );
             setUserHasLogin(response.data.username);
             setIdUserHasLogin(response.data.id_fans);
           }
@@ -59,7 +56,7 @@ export default function index() {
       }
     };
     fetchDataHasLogin();
-  }, [email, status, session]);
+  }, [status, session]);
 
   useEffect(() => {
     const fetchArtistData = async () => {

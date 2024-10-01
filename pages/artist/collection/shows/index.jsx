@@ -5,20 +5,16 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 
 export default function () {
-  const [data, setData] = useState([]);
+  const { data: session, status } = useSession();
+  const [dataShow, setDataShow] = useState([]);
   const [id, setId] = useState();
 
   const [totalShows, setTotalShows] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
 
   const observer = useRef();
 
@@ -29,7 +25,7 @@ export default function () {
         const response = await axios.get(
           `${baseURL}/artist/collection/shows?id=${id}&page=${page}`,
         );
-        setData((prevData) => [...prevData, ...response.data.data]);
+        setDataShow((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -46,7 +42,7 @@ export default function () {
     const fetchArtistData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
+          `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setId(response.data.id_artist);
       } catch (error) {
@@ -54,7 +50,7 @@ export default function () {
       }
     };
     fetchArtistData();
-  }, [email]);
+  }, [session]);
 
   useEffect(() => {
     if (id) {
@@ -67,25 +63,25 @@ export default function () {
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && data.length < totalShows) {
+        if (entries[0].isIntersecting && dataShow.length < totalShows) {
           setCurrentPage((prevPage) => prevPage + 1);
         }
       });
       if (node) observer.current.observe(node);
     },
-    [isLoading, totalShows, data.length],
+    [isLoading, totalShows, dataShow.length],
   );
 
   const handleFilterAll = useCallback(
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataShow([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/shows?id=${id}&page=${page}`,
         );
-        setData((prevData) => [...prevData, ...response.data.data]);
+        setDataShow((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -102,12 +98,12 @@ export default function () {
     async (page) => {
       setIsLoading(true);
       setCurrentPage(1);
-      setData([]);
+      setDataShow([]);
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/shows/sort/upcoming?id=${id}&page=${page}`,
         );
-        setData((prevData) => [...prevData, ...response.data.data]);
+        setDataShow((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -145,7 +141,7 @@ export default function () {
               </div>
             </div>
             <div className="grid flex-grow grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-              {data.map((item, i) => (
+              {dataShow.map((item, i) => (
                 <a href={`/detail/show/${item.id_show}`} key={i}>
                   <div
                     onMouseEnter={() => setHoveredIndex(i)}

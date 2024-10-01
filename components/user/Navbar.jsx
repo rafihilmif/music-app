@@ -136,7 +136,7 @@ export default function Navbar() {
   };
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
+    signOut({ callbackUrl: `${baseURL}/` });
   };
 
   return (

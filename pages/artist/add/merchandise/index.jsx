@@ -2,11 +2,12 @@ import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 export default function index() {
   const router = useRouter();
   const [id, setId] = useState();
+  const { data: session } = useSession();
 
   const [loading, setLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -26,11 +27,6 @@ export default function index() {
   const [price, setPrice] = useState(0);
   const [status, setStatus] = useState();
 
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
 
@@ -48,7 +44,7 @@ export default function index() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
+          `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setId(response.data.id_artist);
         setArtist(response.data.name);
@@ -58,7 +54,7 @@ export default function index() {
       }
     };
     fetchData();
-  }, [email]);
+  }, [session]);
 
   const uploadImageToClient = (event) => {
     const newFiles = Array.from(event.target.files);

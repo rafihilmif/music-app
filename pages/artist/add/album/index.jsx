@@ -2,9 +2,10 @@ import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 export default function CreateAlbum() {
+  const { data: session } = useSession();
   const router = useRouter();
   const [id, setId] = useState();
 
@@ -18,11 +19,6 @@ export default function CreateAlbum() {
   const [isChecked, setIsChecked] = useState(false);
   const [status, setStatus] = useState();
 
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   const handleCheckboxChange = () => {
     if (checkboxRef.current) {
       setIsChecked(checkboxRef.current.checked);
@@ -33,15 +29,17 @@ export default function CreateAlbum() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
+          `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setId(response.data.id_artist);
+        setArtist(response.data.name);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchData();
-  }, [email]);
+  }, [session]);
 
   useEffect(() => {
     if (isChecked) {

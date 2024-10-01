@@ -24,7 +24,7 @@ const SignUpFans = () => {
           confirm_password: confirm_password,
           password: password,
         })
-        .then(alert('Success to register as Fans'));
+        .then(alert('Successfully register as fans' + username));
     } catch (error) {
       alert('Failed register as Fans' + error);
     }

@@ -132,23 +132,23 @@ export default function Index() {
         <div className="w-full bg-transparent px-2 py-4 font-sans">
           <h1 className="mb-4 text-3xl font-bold">Shopping Cart</h1>
           {isCartEmpty ? (
-            <div className="mt-5 text-center">
-              <ShoppingCartOutlined className="mx-auto h-48 w-48 text-gray-800" />
+            <div className="mt-36 text-center">
+              <ShoppingCartOutlined className="text-white-800 mx-auto h-48 w-48" />
               <h2 className="mt-4 text-xl font-semibold text-gray-600">
                 Your cart is empty
               </h2>
-              <p className="mt-2 text-gray-500">
+              <p className="mb-4 mt-2 text-gray-500">
                 Looks like you haven't added any items to your cart yet.
               </p>
-              <a
+              <button
                 onClick={() => router.push('/search')}
-                className="mt-6 w-2/4 rounded-md border-2 border-gray-800 px-6 py-2 text-gray-800 transition-colors duration-300 hover:bg-gray-800 hover:text-white"
+                className="text-white-800 w-2/4 cursor-pointer rounded-md border-2 border-gray-800 px-6 py-2 transition-colors duration-300 hover:bg-gray-800 hover:text-white"
               >
                 Continue Shopping
-              </a>
+              </button>
             </div>
           ) : (
-            <div className="mt-16 grid gap-8 md:grid-cols-3">
+            <div className="mt-36 grid gap-8 md:grid-cols-3">
               <div className="space-y-4 md:col-span-2">
                 {dataCart.map((item) => (
                   <div

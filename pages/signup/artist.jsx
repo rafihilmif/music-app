@@ -40,9 +40,7 @@ function SignUpArtist() {
           genre: genre,
           name: name,
         })
-        .then((res) => {
-          console.log(res.data);
-        });
+        .then(alert('Successfully register as Artist' + username));
     } catch (error) {
       console.error('Error during registration:', error.response.data.error);
     }

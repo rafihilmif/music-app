@@ -1,7 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-
 import {
   SkipPrevious,
   PlayArrow,
@@ -10,13 +9,29 @@ import {
   CropFree,
   Pause,
 } from '@mui/icons-material';
-import { PlayerContext } from '@/context/PlayerContext';
+import { usePlayerStore } from '@/store/usePlayerStore';
 export default function Player() {
-  const { seekBar, seekBg, playStatus, play, pause, track, time } =
-    useContext(PlayerContext);
-
   if (!track) return null;
 
+  const {
+    track,
+    playStatus,
+    time,
+    seekBg,
+    seekBar,
+    play,
+    pause,
+    setSeekBg,
+    setSeekBar,
+  } = usePlayerStore();
+
+  const seekBgRef = useRef(null);
+  const seekBarRef = useRef(null);
+
+  useEffect(() => {
+    setSeekBg(seekBgRef.current);
+    setSeekBar(seekBarRef.current);
+  }, [setSeekBg, setSeekBar]);
 
   return (
     <div className="flex h-[10%] items-center justify-between bg-black px-4 text-white">

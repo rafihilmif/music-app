@@ -6,6 +6,7 @@ import axios from 'axios';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import { getSession } from 'next-auth/react';
+
 export default function index() {
   const router = useRouter();
   const { id } = router.query;

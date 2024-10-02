@@ -1,5 +1,5 @@
 import '@/styles/globals.css';
-import { SessionProvider, useSession } from 'next-auth/react';
+import { SessionProvider } from 'next-auth/react';
 import { PlayerContextProvider } from '@/context/PlayerContext';
 import { useRouter } from 'next/router';
 import Player from '@/components/user/Player';

@@ -137,6 +137,7 @@ export default function Navbar() {
 
   const handleSignOut = () => {
     signOut({ callbackUrl: `${baseURL}/` });
+    localStorage.clear();
   };
 
   return (

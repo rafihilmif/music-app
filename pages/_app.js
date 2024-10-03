@@ -12,25 +12,23 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <SessionProvider session={pageProps.session}>
-        <PlayerContextProvider>
-          {router.pathname === '/' ||
-          router.pathname === '/signup/artist' ||
-          router.pathname === '/signup/fans' ? (
-            <Component {...pageProps} />
-          ) : (
-            <>
-              <div className="h-screen  bg-black">
-                <main className="flex h-[90%]">
-                  <Sidebar />
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
-                </main>
-                <Player />
-              </div>
-            </>
-          )}
-        </PlayerContextProvider>
+        {router.pathname === '/' ||
+        router.pathname === '/signup/artist' ||
+        router.pathname === '/signup/fans' ? (
+          <Component {...pageProps} />
+        ) : (
+          <>
+            <div className="h-screen  bg-black">
+              <main className="flex h-[90%]">
+                <Sidebar />
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              </main>
+              <Player />
+            </div>
+          </>
+        )}
       </SessionProvider>
     </>
   );

@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
+import Player from '@/components/user/Player';
 
 export default function MainLayoutFans() {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getSession } from 'next-auth/react';
 import Navbar from '@/components/user/Navbar';
 import axios from 'axios';
@@ -6,9 +6,9 @@ import { MoreHoriz, PlayArrow } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-import { PlayerContext } from '@/context/PlayerContext';
 import Layout from '@/components/user/Layout';
 import { useSession } from 'next-auth/react';
+import usePlayerStore from '@/store/usePlayerStore';
 
 export default function index() {
   const router = useRouter();
@@ -25,13 +25,52 @@ export default function index() {
   const [desc, setDesc] = useState();
 
   const [dataAlbum, setDataAlbum] = useState([]);
-  const [dataSongPopular, setDataSongPopular] = useState([]);
+  const [dataSong, setDataSong] = useState([]);
   const [dataShow, setDataShow] = useState([]);
   const [dataPlaylist, setDataPlaylist] = useState([]);
   const [totalAlbum, setTotalAlbum] = useState();
   const [totalFollower, setTotalFollower] = useState();
 
   const [dataMerchandise, setDataMerchandise] = useState([]);
+  const audioRef = useRef(null);
+  const { setSongs, setCurrentSong, setCurrentSongIndex, playStatus } =
+    usePlayerStore();
+
+  const handlePlaySong = async (song, index) => {
+    if (!song) return;
+
+    const songData = {
+      id: song.id_song,
+      name: song.name,
+      artist: song.Artist.name,
+      image: song.image,
+      audio: song.audio_path || song.audio,
+    };
+
+    try {
+      await setCurrentSong(songData);
+      setCurrentSongIndex(index);
+      audioRef.current.play();
+    } catch (error) {
+      console.error('Error playing song:', error);
+    }
+  };
+
+  const toggleSong = async (e, song, index) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const currentSong = usePlayerStore.getState().currentSong;
+    if (currentSong && song && currentSong.id === song.id_song) {
+      if (playStatus) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+    } else {
+      await handlePlaySong(song, index);
+    }
+  };
 
   useEffect(() => {
     const fetchDataHasLogin = async () => {
@@ -106,17 +145,16 @@ export default function index() {
   }, [id]);
 
   useEffect(() => {
-    const fetchDataSongPopular = async () => {
+    const fetchDataSong = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/collection/song?id=${id}&limit=1`,
-        );
-        setDataSongPopular(response.data.data);
+        const response = await axios.get(`${baseURL}/collection/song?id=${id}`);
+        setDataSong(response.data.data);
+        setSongs(response.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchDataSongPopular();
+    fetchDataSong();
   }, [id]);
 
   useEffect(() => {
@@ -336,17 +374,22 @@ export default function index() {
             ))}
           </div>
         </div>
+
         <div className="mt-10 flex flex-col">
           <h1 className="text-xl font-bold">Song</h1>
-          {dataSongPopular.map((item, index) => (
+          {dataSong.map((item, index) => (
             <a key={index}>
               <div
+                onClick={() => handlePlaySong(item, index)}
                 onMouseEnter={() => onHover(index)}
                 onMouseLeave={() => onHoverLeave(index)}
                 className="mt-3 grid cursor-pointer grid-cols-2 items-center gap-5 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b] sm:grid-cols-2"
               >
                 <div className="flex items-center text-white">
-                  <button className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300">
+                  <button
+                    onClick={() => toggleSong()} // and this
+                    className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300"
+                  >
                     <span
                       className={`absolute font-medium transition-opacity duration-300 ${hoverIndex[index] ? 'opacity-0' : 'opacity-100'}`}
                     >
@@ -368,7 +411,7 @@ export default function index() {
             </a>
           ))}
         </div>
-        <h4 hr className="mt-2">
+        <h4 className="mt-2">
           <a
             className="cursor-pointer text-sm text-gray-400 hover:text-gray-200"
             href={`/profile/song/${id}`}

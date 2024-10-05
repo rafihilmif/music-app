@@ -59,10 +59,10 @@ export default function Player() {
     if (audio.src !== newSrc) {
       audio.src = newSrc;
       if (playStatus) {
-        audio.play().catch(console.error);
+        audio.play();
       }
     } else if (playStatus) {
-      audio.play().catch(console.error);
+      audio.play();
     } else {
       audio.pause();
     }

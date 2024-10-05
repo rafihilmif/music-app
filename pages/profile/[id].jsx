@@ -30,11 +30,17 @@ export default function index() {
   const [dataPlaylist, setDataPlaylist] = useState([]);
   const [totalAlbum, setTotalAlbum] = useState();
   const [totalFollower, setTotalFollower] = useState();
+  const [durations, setDurations] = useState({});
 
   const [dataMerchandise, setDataMerchandise] = useState([]);
   const audioRef = useRef(null);
-  const { setSongs, setCurrentSong, setCurrentSongIndex, playStatus } =
-    usePlayerStore();
+  const {
+    setSongs,
+    setCurrentSong,
+    setCurrentSongIndex,
+    playStatus,
+    setPlayStatus,
+  } = usePlayerStore();
 
   const handlePlaySong = async (song, index) => {
     if (!song) return;
@@ -46,13 +52,15 @@ export default function index() {
       image: song.image,
       audio: song.audio_path || song.audio,
     };
-
     try {
       await setCurrentSong(songData);
       setCurrentSongIndex(index);
-      audioRef.current.play();
+      setPlayStatus(true);
+      if (audioRef.current) {
+        await audioRef.current.play();
+      }
     } catch (error) {
-      console.error('Error playing song:', error);
+      console.error('Error setting up song:', error);
     }
   };
 
@@ -156,6 +164,25 @@ export default function index() {
     };
     fetchDataSong();
   }, [id]);
+
+  useEffect(() => {
+    if (dataSong.length > 0) {
+      dataSong.forEach((song, index) => {
+        const audio = new Audio(`${baseURLFile}/assets/audio/${song.audio}`);
+        audio.onloadedmetadata = () => {
+          const duration = audio.duration;
+          const minutes = Math.floor(duration / 60);
+          const seconds = Math.floor(duration % 60);
+          const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+          setDurations((prev) => ({
+            ...prev,
+            [index]: formattedTime,
+          }));
+        };
+      });
+    }
+  }, [dataSong, baseURLFile]);
 
   useEffect(() => {
     const fetchShowData = async () => {
@@ -406,7 +433,7 @@ export default function index() {
                   <b>{item.name}</b>
                 </div>
 
-                <p>3:01</p>
+                <p>{durations[index]}</p>
               </div>
             </a>
           ))}

@@ -2,13 +2,13 @@ import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
+import Swal from 'sweetalert2';
 export default function index() {
+  const { data: session } = useSession();
   const router = useRouter();
   const [id, setId] = useState();
-
-  const [loading, setLoading] = useState(true);
 
   const [dataAlbum, setDataAlbum] = useState([]);
   const [dataGenre, setDataGenre] = useState([]);
@@ -23,13 +23,10 @@ export default function index() {
   const [audio, setAudio] = useState(null);
   const [status, setStatus] = useState();
 
+  const [errors, setErrors] = useState({});
+
   const [createObjectImageURL, setCreateObjectImageURL] = useState(null);
   const [createObjectAudioURL, setCreateObjectAudioURL] = useState(null);
-
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
 
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
@@ -39,7 +36,32 @@ export default function index() {
       setIsChecked(checkboxRef.current.checked);
     }
   };
+
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${baseURL}/detail/artist?email=${session.user.email}`,
+        );
+        setId(response.data.id_artist);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    if (session) {
+      fetchData();
+    }
+  }, [session]);
+
+  useEffect(() => {
+    const fetchDataGenre = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/genre`);
+        setDataGenre(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
     fetchDataGenre();
   }, []);
 
@@ -54,20 +76,6 @@ export default function index() {
     };
     fetchDataAlbum();
   }, [id]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
-        );
-        setId(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, [email]);
 
   const uploadImageToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -94,69 +102,68 @@ export default function index() {
     }
   }, [isChecked]);
 
-  const fetchDataGenre = async () => {
-    await axios
-      .get(`${baseURL}/genre`)
-      .then((res) => {
-        setDataGenre(res.data);
-        setLoading(false);
-      })
-      .catch((err) => console.error('error' + err));
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  const handleUpload = async () => {
+  const handleUploadSong = async () => {
     const formData = new FormData();
     formData.append('image', image);
     formData.append('audio', audio);
     formData.append('name', name);
     formData.append('genre', genre);
-    formData.append('album', album);
     formData.append('release_date', releaseDate);
     formData.append('lyric', lyric);
     formData.append('credit', credit);
     formData.append('status', status);
 
+    if (album === undefined) {
+      formData.append('album', null);
+    } else {
+      formData.append('album', album);
+    }
     try {
-      await axios
-        .post(`${baseURL}/artist/song/add?id=${id}`, formData)
-        .then(alert('berhasil menambahkan track'), router.reload());
+      const response = await axios.post(
+        `${baseURL}/artist/song/add?id=${id}`,
+        formData,
+      );
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          // window.location.reload();
+          console.log(response.data.message);
+          console.log(response.data.data);
+        });
+      }
     } catch (error) {
-      if (error.response) {
-        alert(
-          'Terjadi kesalahan saat mengunggah file: ' +
-            error.response.data.message,
-        );
-      } else if (error.request) {
-        alert('Terjadi kesalahan saat mengirim permintaan ke server.');
+      if (error.response && error.response.status === 400) {
+        const { path, message } = error.response.data;
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [path]: message,
+        }));
       } else {
-        alert('Terjadi kesalahan: ' + error.message);
+        console.error('An unexpected error occurred:', error);
       }
     }
   };
-
   return (
     <>
       <Navbar />
       <div className="mt-10 h-auto w-full overflow-hidden rounded-lg bg-transparent">
-        <h1 className="mb-4 text-3xl font-bold">Create new Track</h1>
-        <form
-          onSubmit={handleUpload}
-          className="mb-2 flex w-full justify-center space-x-6 "
-        >
+        <h1 className="mb-4 text-3xl font-bold">Create new Song</h1>
+        <div className="mb-2 flex w-full justify-center space-x-6 ">
           <div className="h-full w-9/12 rounded-lg border  p-6 shadow-md md:mt-0">
             <div className=" w-full border  px-4 ">
               <div className="flex flex-col border-b py-4 sm:flex-row sm:items-start">
                 <div className="mr-auto shrink-0 sm:py-3">
-                  <p className="text-lg font-medium">Track Details</p>
-                  <p className="text-sm text-gray-400">Add your track</p>
+                  <p className="text-lg font-medium">Song Details</p>
+                  <p className="text-sm text-gray-400">Add your Song</p>
                 </div>
               </div>
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
-                <p className="w-32 shrink-0 text-lg font-medium">Track Name</p>
+                <p className="w-32 shrink-0 text-lg font-medium">Song Name</p>
                 <input
                   onChange={(e) => setName(e.target.value)}
                   type="text"
@@ -164,7 +171,9 @@ export default function index() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
-
+              {errors.name && (
+                <p className="mb-1 text-red-500">{errors.name}</p>
+              )}
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 text-lg font-medium">Genre</p>
                 <div className="relative w-full rounded-lg ">
@@ -172,7 +181,7 @@ export default function index() {
                     onChange={(e) => setGenre(e.target.value)}
                     className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                   >
-                    <option className="text-black" value="#">
+                    <option className="text-black" value="">
                       Please select genre...
                     </option>
                     {dataGenre.map((item, i) => (
@@ -183,6 +192,9 @@ export default function index() {
                   </select>
                 </div>
               </div>
+              {errors.genre && (
+                <p className="mb-1 text-red-500">{errors.genre}</p>
+              )}
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 text-lg font-medium">Album</p>
                 <div className="relative w-full rounded-lg ">
@@ -190,7 +202,7 @@ export default function index() {
                     onChange={(e) => setAlbum(e.target.value)}
                     className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                   >
-                    <option className="text-black" value="#">
+                    <option className="text-black" value="-">
                       Please select album...
                     </option>
 
@@ -213,6 +225,9 @@ export default function index() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
+              {errors.release_date && (
+                <p className="mb-1 text-red-500">{errors.release_date}</p>
+              )}
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 text-lg font-medium">
                   MP3/MP4 File
@@ -278,14 +293,14 @@ export default function index() {
             <div className="my-4"></div>
             <div className="mt-5 w-full">
               <button
-                type="submit"
+                onClick={handleUploadSong}
                 className="hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded bg-blue-600 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white"
               >
                 Publish
               </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </>
   );

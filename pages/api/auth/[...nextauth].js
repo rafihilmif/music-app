@@ -21,7 +21,6 @@ export default NextAuth({
             password: credentials.password,
           });
           const user = response.data;
-
           if (user.role == 'artist') {
             return {
               id: user.id_artist,

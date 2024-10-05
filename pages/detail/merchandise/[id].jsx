@@ -24,7 +24,7 @@ export default function detailMerchById() {
 
   const [mainImage, setMainImage] = useState(null);
   const [count, setCount] = useState(0);
-
+  const [role, setRole] = useState(false);
   const [relatedMerch, setRelatedMerch] = useState([]);
 
   const [idFans, setIdFans] = useState([]);
@@ -39,6 +39,7 @@ export default function detailMerchById() {
             `${baseURL}/detail/fans?email=${session.user.email}`,
           );
           setIdFans(response.data.id_fans);
+          setRole(true);
         } catch (error) {
           console.error('Error fetching data:', error);
         }
@@ -189,6 +190,10 @@ export default function detailMerchById() {
     return sizeStock[size] > 0;
   };
 
+  useEffect(() => {
+    console.log(role);
+  }, [role]);
+
   return (
     <>
       <Navbar />
@@ -239,102 +244,110 @@ export default function detailMerchById() {
                 <p className="text-rhino-400 mb-6 text-justify text-sm font-medium">
                   {desc}
                 </p>
-                <div className="mb-8">
-                  <p className="text-rhino-500 mb-3 text-xs font-bold uppercase">
-                    SIZE
-                  </p>
-                  <div className="-mx-1 -mb-1 flex flex-wrap">
-                    {['S', 'M', 'L', 'XL'].map((size) => (
-                      <div className="mb-1 w-1/3 px-1 md:w-1/6" key={size}>
-                        <div
-                          className={`border-coolGray-200 text-coolGray-700 w-full cursor-pointer rounded-sm border py-2 text-center text-sm transition duration-200 ${
-                            checkStockSize(size)
-                              ? `hover:border-purple-500 hover:text-purple-700 ${
-                                  selectedSize === size
-                                    ? 'border-purple-500 text-purple-700'
-                                    : ''
-                                }`
-                              : 'cursor-not-allowed opacity-50'
-                          }`}
-                          onClick={() =>
-                            checkStockSize(size) && handleSizeSelect(size)
-                          }
-                        >
-                          {size}
+                {role === true ? (
+                  <div className="mb-8">
+                    <p className="text-rhino-500 mb-3 text-xs font-bold uppercase">
+                      SIZE
+                    </p>
+                    <div className="-mx-1 -mb-1 flex flex-wrap">
+                      {['S', 'M', 'L', 'XL'].map((size) => (
+                        <div className="mb-1 w-1/3 px-1 md:w-1/6" key={size}>
+                          <div
+                            className={`border-coolGray-200 text-coolGray-700 w-full cursor-pointer rounded-sm border py-2 text-center text-sm transition duration-200 ${
+                              checkStockSize(size)
+                                ? `hover:border-purple-500 hover:text-purple-700 ${
+                                    selectedSize === size
+                                      ? 'border-purple-500 text-purple-700'
+                                      : ''
+                                  }`
+                                : 'cursor-not-allowed opacity-50'
+                            }`}
+                            onClick={() =>
+                              checkStockSize(size) && handleSizeSelect(size)
+                            }
+                          >
+                            {size}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <></>
+                )}
                 <h2 className="text-rhino-700 font-heading mb-6 text-4xl font-semibold">
                   {formatCurrency(price)}
                 </h2>
-                <div className="-mx-2 mb-10 flex flex-wrap">
-                  <div className="xs:w-4/12 xs:mb-0 mb-4 w-full px-2 md:w-3/12">
-                    <div className="xs:w-full border-coolGray-200 inline-flex h-full items-center justify-between gap-2 rounded-md border px-4 py-3">
-                      <div
-                        className="text-coolGray-300 hover:text-coolGray-400 cursor-pointer transition duration-200"
-                        onClick={decrement}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="17"
-                          fill="none"
+
+                {role === 'fans' ? (
+                  <div className="-mx-2 mb-10 flex flex-wrap">
+                    <div className="xs:w-4/12 xs:mb-0 mb-4 w-full px-2 md:w-3/12">
+                      <div className="xs:w-full border-coolGray-200 inline-flex h-full items-center justify-between gap-2 rounded-md border px-4 py-3">
+                        <div
+                          className="text-coolGray-300 hover:text-coolGray-400 cursor-pointer transition duration-200"
+                          onClick={decrement}
                         >
-                          <path
-                            d="M12.6667 7.49988H3.33341C3.1566 7.49988 2.98703 7.57012 2.86201 7.69514C2.73699 7.82016 2.66675 7.98973 2.66675 8.16654C2.66675 8.34336 2.73699 8.51292 2.86201 8.63795C2.98703 8.76297 3.1566 8.83321 3.33341 8.83321H12.6667C12.8436 8.83321 13.0131 8.76297 13.1382 8.63795C13.2632 8.51292 13.3334 8.34336 13.3334 8.16654C13.3334 7.98973 13.2632 7.82016 13.1382 7.69514C13.0131 7.57012 12.8436 7.49988 12.6667 7.49988Z"
-                            fill="currentColor"
-                          ></path>
-                        </svg>
-                      </div>
-                      <input
-                        type="text"
-                        className="text-coolGray-700 w-9 rounded border border-transparent bg-transparent px-2 text-center text-sm focus:border-transparent focus:ring-0"
-                        value={count}
-                        onChange={handleInputChange}
-                      />
-                      <div
-                        className="text-coolGray-300 hover:text-coolGray-400 cursor-pointer transition duration-200"
-                        onClick={increment}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="17"
-                          fill="none"
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="17"
+                            fill="none"
+                          >
+                            <path
+                              d="M12.6667 7.49988H3.33341C3.1566 7.49988 2.98703 7.57012 2.86201 7.69514C2.73699 7.82016 2.66675 7.98973 2.66675 8.16654C2.66675 8.34336 2.73699 8.51292 2.86201 8.63795C2.98703 8.76297 3.1566 8.83321 3.33341 8.83321H12.6667C12.8436 8.83321 13.0131 8.76297 13.1382 8.63795C13.2632 8.51292 13.3334 8.34336 13.3334 8.16654C13.3334 7.98973 13.2632 7.82016 13.1382 7.69514C13.0131 7.57012 12.8436 7.49988 12.6667 7.49988Z"
+                              fill="currentColor"
+                            ></path>
+                          </svg>
+                        </div>
+                        <input
+                          type="text"
+                          className="text-coolGray-700 w-9 rounded border border-transparent bg-transparent px-2 text-center text-sm focus:border-transparent focus:ring-0"
+                          value={count}
+                          onChange={handleInputChange}
+                        />
+                        <div
+                          className="text-coolGray-300 hover:text-coolGray-400 cursor-pointer transition duration-200"
+                          onClick={increment}
                         >
-                          <path
-                            d="M12.6667 7.4998H8.66675V3.4998C8.66675 3.32299 8.59651 3.15342 8.47149 3.02839C8.34646 2.90337 8.17689 2.83313 8.00008 2.83313C7.82327 2.83313 7.6537 2.90337 7.52868 3.02839C7.40365 3.15342 7.33341 3.32299 7.33341 3.4998V7.4998H3.33341C3.1566 7.4998 2.98703 7.57003 2.86201 7.69506C2.73699 7.82008 2.66675 7.98965 2.66675 8.16646C2.66675 8.34327 2.73699 8.51284 2.86201 8.63787C2.98703 8.76289 3.1566 8.83313 3.33341 8.83313H7.33341V12.8331C7.33341 13.0099 7.40365 13.1795 7.52868 13.3045C7.6537 13.4296 7.82327 13.4998 8.00008 13.4998C8.17689 13.4998 8.34646 13.4296 8.47149 13.3045C8.59651 13.1795 8.66675 13.0099 8.66675 12.8331V8.83313H12.6667C12.8436 8.83313 13.0131 8.76289 13.1382 8.63787C13.2632 8.51284 13.3334 8.34327 13.3334 8.16646C13.3334 7.98965 13.2632 7.82008 13.1382 7.69506C13.0131 7.57003 12.8436 7.4998 12.6667 7.4998Z"
-                            fill="currentColor"
-                          ></path>
-                        </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="17"
+                            fill="none"
+                          >
+                            <path
+                              d="M12.6667 7.4998H8.66675V3.4998C8.66675 3.32299 8.59651 3.15342 8.47149 3.02839C8.34646 2.90337 8.17689 2.83313 8.00008 2.83313C7.82327 2.83313 7.6537 2.90337 7.52868 3.02839C7.40365 3.15342 7.33341 3.32299 7.33341 3.4998V7.4998H3.33341C3.1566 7.4998 2.98703 7.57003 2.86201 7.69506C2.73699 7.82008 2.66675 7.98965 2.66675 8.16646C2.66675 8.34327 2.73699 8.51284 2.86201 8.63787C2.98703 8.76289 3.1566 8.83313 3.33341 8.83313H7.33341V12.8331C7.33341 13.0099 7.40365 13.1795 7.52868 13.3045C7.6537 13.4296 7.82327 13.4998 8.00008 13.4998C8.17689 13.4998 8.34646 13.4296 8.47149 13.3045C8.59651 13.1795 8.66675 13.0099 8.66675 12.8331V8.83313H12.6667C12.8436 8.83313 13.0131 8.76289 13.1382 8.63787C13.2632 8.51284 13.3334 8.34327 13.3334 8.16646C13.3334 7.98965 13.2632 7.82008 13.1382 7.69506C13.0131 7.57003 12.8436 7.4998 12.6667 7.4998Z"
+                              fill="currentColor"
+                            ></path>
+                          </svg>
+                        </div>
                       </div>
                     </div>
+                    <div className="xs:w-5/12 xs:mb-0 mb-4 w-full px-2 md:w-7/12">
+                      <button
+                        className={`w-full rounded-md px-3 py-4 text-center text-sm font-medium text-white outline outline-1 transition duration-200 ${stock > 0 ? 'bg-transparent hover:bg-purple-600' : 'cursor-not-allowed bg-transparent'}`}
+                        onClick={addToCart}
+                        disabled={stock <= 0}
+                      >
+                        {stock > 0 ? 'Add to cart' : 'Out of stock'}
+                      </button>
+                    </div>
+                    <div className="xs:w-3/12 w-full px-2 md:w-2/12">
+                      <a
+                        className="inline-flex h-14 cursor-not-allowed items-center justify-center rounded-md border border-purple-600 px-6 py-4 text-purple-500 transition duration-200 hover:bg-purple-500 hover:text-white"
+                        href="#"
+                      >
+                        <FavoriteBorder
+                          className="cursor-not-allowed"
+                          width="16"
+                          height="17"
+                        />
+                      </a>
+                    </div>
                   </div>
-                  <div className="xs:w-5/12 xs:mb-0 mb-4 w-full px-2 md:w-7/12">
-                    <button
-                      className={`w-full rounded-md px-3 py-4 text-center text-sm font-medium text-white outline outline-1 transition duration-200 ${stock > 0 ? 'bg-transparent hover:bg-purple-600' : 'cursor-not-allowed bg-transparent'}`}
-                      onClick={addToCart}
-                      disabled={stock <= 0}
-                    >
-                      {stock > 0 ? 'Add to cart' : 'Out of stock'}
-                    </button>
-                  </div>
-                  <div className="xs:w-3/12 w-full px-2 md:w-2/12">
-                    <a
-                      className="inline-flex h-14 cursor-not-allowed items-center justify-center rounded-md border border-purple-600 px-6 py-4 text-purple-500 transition duration-200 hover:bg-purple-500 hover:text-white"
-                      href="#"
-                    >
-                      <FavoriteBorder
-                        className="cursor-not-allowed"
-                        width="16"
-                        height="17"
-                      />
-                    </a>
-                  </div>
-                </div>
-
+                ) : (
+                  <></>
+                )}
                 <div className="border-coolGray-200 rounded-sm border">
                   <div className="border-coolGray-200 flex flex-wrap items-center justify-between gap-4 border-b px-6 py-3">
                     <p className="text-rhino-500 text-xs font-bold uppercase tracking-widest">
@@ -441,14 +454,7 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
-  if (session.user.role === 'artist') {
-    return {
-      redirect: {
-        destination: '/artist',
-        permanent: false,
-      },
-    };
-  }
+
   return {
     props: {
       ...session,

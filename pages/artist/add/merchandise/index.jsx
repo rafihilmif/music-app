@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
+import Swal from 'sweetalert2';
 export default function index() {
   const router = useRouter();
   const [id, setId] = useState();
@@ -30,15 +31,13 @@ export default function index() {
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
 
+  const [errors, setErrors] = useState({});
+
   const handleCheckboxChange = () => {
     if (checkboxRef.current) {
       setIsChecked(checkboxRef.current.checked);
     }
   };
-
-  useEffect(() => {
-    fetchDataCategory();
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +47,6 @@ export default function index() {
         );
         setId(response.data.id_artist);
         setArtist(response.data.name);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -77,29 +75,32 @@ export default function index() {
     }
   }, [isChecked]);
 
-  const fetchDataCategory = async () => {
-    await axios
-      .get(`${baseURL}/category`)
-      .then((res) => {
-        setDataCategory(res.data);
-      })
-      .catch((err) => console.error('error' + err));
-  };
+  useEffect(() => {
+    const fetchDataCategory = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/category`);
+        setDataCategory(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchDataCategory();
+  }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
   const removeImage = (index) => {
     const newImages = image.filter((_, i) => i !== index);
     setImage(newImages);
   };
 
-  const handleUpload = async () => {
+  useEffect(() => {
+    console.log(artist);
+  }, [artist]);
+
+  const handleUploadMerchandise = async () => {
     const formData = new FormData();
     formData.append('name', name);
     formData.append('artist', artist);
     formData.append('category', category);
-
     formData.append('price', price);
     formData.append('description', desc);
     formData.append('status', status);
@@ -128,30 +129,42 @@ export default function index() {
     image.forEach((image) => {
       formData.append('image', image);
     });
-
     try {
-      await axios.post(`${baseURL}/artist/merchandise/add?id=${id}`, formData);
-      alert('Successfully added merchandise');
+      const response = await axios.post(
+        `${baseURL}/artist/merchandise/add?id=${id}`,
+        formData,
+      );
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+          // console.log(response.data.message);
+          // console.log(response.data.data);
+        });
+      }
     } catch (error) {
-      if (error.response) {
-        alert('Error uploading file: ' + error.response.data.message);
-      } else if (error.request) {
-        alert('Error sending request to server.');
+      if (error.response && error.response.status === 400) {
+        const { path, message } = error.response.data;
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [path]: message,
+        }));
       } else {
-        alert('Error: ' + error.message);
+        console.error('An unexpected error occurred:', error);
       }
     }
   };
-
   return (
     <>
       <Navbar />
       <div className="mt-10 h-auto w-full overflow-hidden rounded-lg bg-transparent">
         <h1 className="mb-4 text-3xl font-bold">Create new Merchandise</h1>
-        <form
-          onSubmit={handleUpload}
-          className="mb-2 flex w-full justify-center space-x-6 "
-        >
+        <div className="mb-2 flex w-full justify-center space-x-6 ">
           <div className="h-full w-9/12 rounded-lg border  p-6 shadow-md md:mt-0">
             <div className=" w-full border px-4 ">
               <div className="flex flex-col border-b py-4 sm:flex-row sm:items-start">
@@ -168,7 +181,9 @@ export default function index() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
-
+              {errors.name && (
+                <p className="mb-1 text-red-500">{errors.name}</p>
+              )}
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 text-lg font-medium">Category</p>
                 <select
@@ -185,6 +200,9 @@ export default function index() {
                   ))}
                 </select>
               </div>
+              {errors.category && (
+                <p className="mb-1 text-red-500">{errors.category}</p>
+              )}
               {category === 'T-shirt' ||
               category === 'Long Sleeve' ||
               category === 'Hoodie' ||
@@ -243,6 +261,9 @@ export default function index() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
+              {errors.price && (
+                <p className="mb-1 text-red-500">{errors.price}</p>
+              )}
               <div className="flex flex-col gap-4 py-4 lg:flex-row">
                 <div className="w-32 shrink-0  sm:py-4">
                   <p className="mb-auto text-lg font-medium">Image</p>
@@ -306,6 +327,9 @@ export default function index() {
                   ))}
                 </div>
               </div>
+              {errors.image && (
+                <p className="mb-1 text-red-500">{errors.image}</p>
+              )}
             </div>
           </div>
 
@@ -334,17 +358,20 @@ export default function index() {
                 placeholder="Message"
               />
             </div>
+            {errors.description && (
+              <p className="mb-1 text-red-500">{errors.description}</p>
+            )}
             <div className="my-4"></div>
             <div className="mt-7 w-full">
               <button
-                type="submit"
+                onClick={() => handleUploadMerchandise()}
                 className="hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded bg-blue-600 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white"
               >
                 Publish
               </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </>
   );

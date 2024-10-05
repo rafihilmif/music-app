@@ -2,9 +2,9 @@ import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
-
+import Swal from 'sweetalert2';
 export default function index() {
   const citiesByState = {
     'Jawa Timur': [
@@ -224,10 +224,9 @@ export default function index() {
     ],
   };
 
+  const { data: session } = useSession();
   const router = useRouter();
   const [id, setId] = useState();
-
-  const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState('');
   const [date, setDate] = useState();
@@ -244,13 +243,9 @@ export default function index() {
   const [stateCities, setStateCities] = useState([]);
   const [address, setAddress] = useState();
 
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleCheckboxChange = () => {
     if (checkboxRef.current) {
@@ -269,16 +264,17 @@ export default function index() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
+          `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setId(response.data.id_artist);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchData();
-  }, [email]);
+    if (session) {
+      fetchData();
+    }
+  }, [session]);
 
   const uploadImageToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -300,11 +296,7 @@ export default function index() {
     }
   }, [isChecked]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  const handleUpload = async () => {
+  const handleUploadShow = async () => {
     const formData = new FormData();
     formData.append('image', image);
     formData.append('name', name);
@@ -315,19 +307,30 @@ export default function index() {
     formData.append('status', status);
 
     try {
-      await axios
-        .post(`${baseURL}/artist/shows/add?id=${id}`, formData)
-        .then(alert('berhasil menambahkan show'), router.reload());
+      const response = await axios.post(
+        `${baseURL}/artist/shows/add?id=${id}`,
+        formData,
+      );
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
+      }
     } catch (error) {
-      if (error.response) {
-        alert(
-          'Terjadi kesalahan saat mengunggah file: ' +
-            error.response.data.message,
-        );
-      } else if (error.request) {
-        alert('Terjadi kesalahan saat mengirim permintaan ke server.');
+      if (error.response && error.response.status === 400) {
+        const { path, message } = error.response.data;
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [path]: message,
+        }));
       } else {
-        alert('Terjadi kesalahan: ' + error.message);
+        console.error('An unexpected error occurred:', error);
       }
     }
   };
@@ -336,10 +339,7 @@ export default function index() {
       <Navbar />
       <div className="mt-10 h-auto w-full overflow-hidden rounded-lg bg-transparent">
         <h1 className="mb-4 text-3xl font-bold">Create new Show</h1>
-        <form
-          onSubmit={handleUpload}
-          className="mb-2 flex w-full justify-center space-x-6"
-        >
+        <div className="mb-2 flex w-full justify-center space-x-6">
           <div className="h-full w-9/12 rounded-lg border  p-6 shadow-md md:mt-0">
             <div className=" w-full border  px-4 ">
               <div className="flex flex-col border-b py-4 sm:flex-row sm:items-start">
@@ -356,6 +356,9 @@ export default function index() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
+              {errors.name && (
+                <p className="mb-1 text-red-500">{errors.name}</p>
+              )}
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 font-medium">Date</p>
                 <input
@@ -364,6 +367,9 @@ export default function index() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
+              {errors.date && (
+                <p className="mb-1 text-red-500">{errors.date}</p>
+              )}
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 text-lg font-medium">Province</p>
                 <select
@@ -404,6 +410,9 @@ export default function index() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
+              {errors.location && (
+                <p className="mb-1 text-red-500">{errors.location}</p>
+              )}
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 font-medium">Contact Person</p>
                 <input
@@ -454,14 +463,14 @@ export default function index() {
             <div className="my-4"></div>
             <div className="mt-9 w-full">
               <button
-                type="submit"
+                onClick={() => handleUploadShow()}
                 className="hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded bg-blue-600 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white"
               >
                 Publish
               </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </>
   );

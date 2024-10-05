@@ -130,10 +130,6 @@ export default function MainLayoutFans() {
     }
   };
 
-  useEffect(() => {
-    console.log(dataArtistFollowed);
-  }, [dataArtistFollowed]);
-
   return (
     <>
       <Navbar />

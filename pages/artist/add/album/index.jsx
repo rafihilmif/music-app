@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
+import Swal from 'sweetalert2';
 export default function CreateAlbum() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function CreateAlbum() {
   const [image, setImage] = useState(null);
 
   const [createObjectURL, setCreateObjectURL] = useState(null);
+
+  const [errors, setErrors] = useState({});
 
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
@@ -32,8 +35,6 @@ export default function CreateAlbum() {
           `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setId(response.data.id_artist);
-        setArtist(response.data.name);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -59,7 +60,7 @@ export default function CreateAlbum() {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUploadAlbum = async () => {
     const formData = new FormData();
     formData.append('image', image);
     formData.append('name', name);
@@ -67,19 +68,31 @@ export default function CreateAlbum() {
     formData.append('status', status);
 
     try {
-      await axios
-        .post(`${baseURL}/artist/album/add?id=${id}`, formData)
-        .then(alert('berhasil menambahkan album'), router.reload());
+      const response = await axios.post(
+        `${baseURL}/artist/album/add?id=${id}`,
+        formData,
+      );
+
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
+      }
     } catch (error) {
-      if (error.response) {
-        alert(
-          'Terjadi kesalahan saat mengunggah file: ' +
-            error.response.data.message,
-        );
-      } else if (error.request) {
-        alert('Terjadi kesalahan saat mengirim permintaan ke server.');
+      if (error.response && error.response.status === 400) {
+        const { path, message } = error.response.data;
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [path]: message,
+        }));
       } else {
-        alert('Terjadi kesalahan: ' + error.message);
+        console.error('An unexpected error occurred:', error);
       }
     }
   };
@@ -89,10 +102,7 @@ export default function CreateAlbum() {
       <Navbar />
       <div className="mt-10 h-auto w-full overflow-hidden rounded-lg bg-transparent">
         <h1 className="mb-4 text-3xl font-bold">Create new Album</h1>
-        <form
-          onSubmit={handleUpload}
-          className="mb-2 flex w-full justify-center space-x-6  "
-        >
+        <div className="mb-2 flex w-full justify-center space-x-6  ">
           <div className="h-full w-10/12 rounded-lg border  p-6 shadow-md md:mt-0">
             <div className=" w-full border px-4 ">
               <div className="flex flex-col border-b py-4 sm:flex-row sm:items-start">
@@ -110,6 +120,9 @@ export default function CreateAlbum() {
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
+              {errors.name && (
+                <p className="mb-1 text-red-500">{errors.name}</p>
+              )}
               <div className="flex flex-col gap-4 py-4  lg:flex-row">
                 <div className="w-32 shrink-0  sm:py-4">
                   <p className="mb-auto text-lg font-medium">Image</p>
@@ -152,14 +165,14 @@ export default function CreateAlbum() {
             <div className="my-4"></div>
             <div className="mt-9 w-full">
               <button
-                type="submit"
+                onClick={() => handleUploadAlbum()}
                 className="hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded bg-blue-600 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white"
               >
                 Publish
               </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </>
   );

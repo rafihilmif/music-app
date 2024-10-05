@@ -12,11 +12,18 @@ export default function index({ children }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    await signIn('credentials', {
+    const result = await signIn('credentials', {
       redirect: false,
       email,
       password,
     });
+    if (result.data) {
+      if (result.data === 'Your account has been locked') {
+        alert('Your account has been locked. Please contact support.');
+      } else if (result.data === 'Password was incorrect') {
+        alert('Password was incorrect');
+      }
+    }
   };
 
   useEffect(() => {

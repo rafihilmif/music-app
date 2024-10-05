@@ -198,14 +198,7 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
-  if (session.user.role === 'fans') {
-    return {
-      redirect: {
-        destination: '/fans',
-        permanent: false,
-      },
-    };
-  }
+
   return {
     props: {
       ...session,

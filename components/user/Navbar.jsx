@@ -33,6 +33,11 @@ export default function Navbar() {
   const searchQueryFromURL = name || '';
   const [searchQuery, setSearchQuery] = useState(searchQueryFromURL);
 
+  const sanitizeSearchQuery = (query) => {
+    // Remove special characters and symbols, keep alphanumeric and spaces
+    return query.replace(/[^\w\s]/gi, '').trim();
+  };
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -73,8 +78,9 @@ export default function Navbar() {
   }, [role, session, status]);
 
   const debouncedSearch = debounce((query) => {
-    if (query.trim() !== '') {
-      router.push(`/search/${query}`);
+    const sanitizedQuery = sanitizeSearchQuery(query);
+    if (sanitizedQuery !== '') {
+      router.push(`/search/${sanitizedQuery}`);
     } else {
       router.push('/search');
     }
@@ -325,7 +331,7 @@ export default function Navbar() {
             )}
           </div>
           {dropdownOpen && (
-            <div className="absolute right-0 mt-56 w-48 rounded-md bg-[#202020] py-2 shadow-lg">
+            <div className="absolute right-0 mt-36 w-48 rounded-md bg-[#202020] py-2 shadow-lg">
               {role === 'fans' ? (
                 <div className="block cursor-pointer px-4 py-2 text-white hover:bg-gray-500">
                   <a href="/fans/account">Account</a>
@@ -340,9 +346,7 @@ export default function Navbar() {
                   <a href="/fans/subscribe">Subscribe</a>
                 </div>
               )}
-              <div className="block cursor-pointer px-4 py-2 text-white hover:bg-gray-500">
-                <a href="/artist/profile">Profile</a>
-              </div>
+
               <div
                 onClick={() => handleSignOut()}
                 className="block cursor-pointer px-4 py-2 text-white hover:bg-gray-500"

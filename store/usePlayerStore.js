@@ -16,7 +16,6 @@ const usePlayerStore = create(
         totalTime: { second: 0, minute: 0 },
       },
 
-      // Actions
       setSongs: (songs) => set({ songs }),
       setCurrentSongIndex: (index) => set({ currentSongIndex: index }),
       setPlayStatus: (status) => set({ playStatus: status }),
@@ -73,7 +72,7 @@ const usePlayerStore = create(
             name: nextSong.name,
             artist: nextSong.Artist.name,
             image: nextSong.image,
-            audio: nextSong.audio_path || nextSong.audio,
+            audio: nextSong.audio,
           });
           set({ currentSongIndex: nextIndex });
         }
@@ -91,7 +90,7 @@ const usePlayerStore = create(
             name: prevSong.name,
             artist: prevSong.Artist.name,
             image: prevSong.image,
-            audio: prevSong.audio_path || prevSong.audio,
+            audio: prevSong.audio,
           });
           set({ currentSongIndex: prevIndex });
         }

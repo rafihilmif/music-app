@@ -3,11 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clear } from '@mui/icons-material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
+import Swal from 'sweetalert2';
 
 export default function index() {
+  const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query;
 
@@ -35,16 +37,11 @@ export default function index() {
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
 
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/detail/artist?email=${email}`,
+          `${baseURL}/detail/artist?email=${session.user.email}`,
         );
         setIdArtist(response.data.id_artist);
       } catch (error) {
@@ -52,7 +49,7 @@ export default function index() {
       }
     };
     fetchData();
-  }, [email]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataAlbum = async () => {
@@ -167,13 +164,27 @@ export default function index() {
 
     data.append('status', newStatus);
     try {
-      await axios
-        .put(`${baseURL}/artist/song/update?id=${id}`, data)
-        .then(alert('Successfully updated song'), router.reload());
+      const response = await axios.put(
+        `${baseURL}/artist/song/update?id=${id}`,
+        data,
+      );
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          //  window.location.reload();
+          console.log(response.data.message);
+          console.log(response.data.data);
+        });
+      }
     } catch (error) {
       console.error('Error updating song:', error);
       alert('Error updating song: ' + error.message);
-    }     
+    }
   };
 
   return (

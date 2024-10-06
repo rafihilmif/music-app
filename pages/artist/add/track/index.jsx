@@ -131,9 +131,9 @@ export default function index() {
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
         }).then(() => {
-          // window.location.reload();
-          console.log(response.data.message);
-          console.log(response.data.data);
+          window.location.reload();
+          // console.log(response.data.message);
+          // console.log(response.data.data);
         });
       }
     } catch (error) {

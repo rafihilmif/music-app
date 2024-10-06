@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-
+import Swal from 'sweetalert2';
 export default function index() {
   const router = useRouter();
   const { id } = router.query;
@@ -89,7 +89,7 @@ export default function index() {
     if (id) {
       fetchData();
     }
-  }, [id]);
+  }, [id, loading]);
 
   const uploadImageToClient = (event, index) => {
     const file = event.target.files[0];
@@ -137,12 +137,28 @@ export default function index() {
       data.append('number', number);
     });
     try {
-      await axios.put(`${baseURL}/artist/merch/update?id=${id}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      const response = await axios.put(
+        `${baseURL}/artist/merch/update?id=${id}`,
+        data,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         },
-      });
-      alert('Successfully updated merchandise', router.reload());
+      );
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+          // console.log(response.data.message);
+          // console.log(response.data.data);
+        });
+      }
     } catch (error) {
       console.error('Error updating merchandise:', error);
       alert('Error updating merchandise: ' + error.message);

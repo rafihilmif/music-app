@@ -34,7 +34,6 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState(searchQueryFromURL);
 
   const sanitizeSearchQuery = (query) => {
-    // Remove special characters and symbols, keep alphanumeric and spaces
     return query.replace(/[^\w\s]/gi, '').trim();
   };
 

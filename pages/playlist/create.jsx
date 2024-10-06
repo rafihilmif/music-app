@@ -38,7 +38,7 @@ export default function create() {
       }
     };
     fetchData();
-  }, [email, status, session]);
+  }, [status, session]);
 
   const uploadToClient = (event) => {
     if (event.target.files && event.target.files[0]) {

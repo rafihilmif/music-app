@@ -28,6 +28,10 @@ export default function Index() {
   const [hoverIndex, setHoverIndex] = useState(null);
   const [showOptionsIndex, setShowOptionsIndex] = useState(null);
 
+  const sanitizeSearchQuery = (query) => {
+    return query.replace(/[^\w\s]/gi, '').trim();
+  };
+
   useEffect(() => {
     const fetchDataPlaylist = async () => {
       try {
@@ -95,11 +99,12 @@ export default function Index() {
   }, [id]);
 
   useEffect(() => {
+    const sanitizedQuery = sanitizeSearchQuery(searchQuery);
     const fetchDataSearch = async () => {
       if (searchQuery) {
         try {
           const response = await axios.get(
-            `${baseURL}/search/song/playlist?q=${searchQuery}`,
+            `${baseURL}/search/song/playlist?q=${sanitizedQuery}`,
           );
           setDataSearchSongResults(response.data);
         } catch (error) {
@@ -107,7 +112,6 @@ export default function Index() {
         }
       }
     };
-
     fetchDataSearch();
   }, [searchQuery, dataPlaylistSong]);
 
@@ -156,35 +160,25 @@ export default function Index() {
           </p>
         </div>
       </div>
-
-      {/* Playlist Songs */}
       {dataPlaylistSong.length > 0 && (
         <>
-          {/* Header Row */}
           <div
             className={`mb-4 mt-10 grid text-[#a7a7a7] ${idOwnerCheck === idOwnerPlaylist ? 'grid-cols-3' : 'grid-cols-2'} sm:grid-cols-${idOwnerCheck === idOwnerPlaylist ? '3' : '2'}`}
           >
-            {/* Column 1: Index and Title */}
             <p className="pl-2">
               <b className="mr-4">#</b>
               Title
             </p>
-
-            {/* Column 2: Schedule Icon (centered) */}
             <div
               className={`flex ${idOwnerCheck === idOwnerPlaylist ? 'ml-8 justify-center' : 'justify-self-end pr-10'}`}
             >
               <Schedule className="w-4" />
             </div>
-
-            {/* Column 3: Options Text (aligned right) - only for owner */}
             {idOwnerCheck === idOwnerPlaylist && (
               <p className="mr-2 justify-self-end">Options</p>
             )}
           </div>
-
           <hr />
-
           {dataPlaylistSong.map((item, index) => (
             <div
               key={index}
@@ -192,7 +186,6 @@ export default function Index() {
               onMouseLeave={() => setHoverIndex(null)}
               className={`grid items-center gap-2 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b] ${idOwnerCheck === idOwnerPlaylist ? 'grid-cols-2 sm:grid-cols-2' : 'grid-cols-[1fr,auto] sm:grid-cols-[1fr,auto]'}`}
             >
-              {/* Song Information */}
               <div className="flex items-center text-white">
                 <button className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300">
                   <span
@@ -216,13 +209,8 @@ export default function Index() {
                   </p>
                 </div>
               </div>
-
-              {/* Right Column: Song Duration and Options */}
               <div className="flex items-center justify-between pr-4">
-                {/* Song Duration */}
                 <p className="mr-4 text-right text-sm text-[#a7a7a7]">3:01</p>
-
-                {/* Options for owner only */}
                 {idOwnerCheck === idOwnerPlaylist && (
                   <div className="relative">
                     <MoreHoriz
@@ -233,8 +221,6 @@ export default function Index() {
                       }
                       className="cursor-pointer text-gray-400 hover:text-white"
                     />
-
-                    {/* Dropdown menu for the song */}
                     {showOptionsIndex === index && (
                       <div className="absolute -right-8 z-40 mt-1 w-28 rounded-md bg-[#2f3135] shadow-lg">
                         <button

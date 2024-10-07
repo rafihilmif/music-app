@@ -283,11 +283,15 @@ export default function index() {
 
   const handleFollow = async () => {
     try {
-      const response = await axios
-        .post(`${baseURL}/follow?idFans=${idUserHasLogin}&idArtist=${id}`)
-        .then(router.reload());
+      const response = await axios.post(
+        `${baseURL}/follow?idFans=${idUserHasLogin}&idArtist=${id}`,
+      );
+      // .then(router.reload());
       if (response.status === 200) {
         setIsFollowed(true);
+        // console.log(response.data.message);
+        // console.log(response.data.data);
+        window.location.reload();
       }
     } catch (error) {
       alert('Error following the artist:', error);
@@ -414,7 +418,7 @@ export default function index() {
               >
                 <div className="flex items-center text-white">
                   <button
-                    onClick={() => toggleSong()} // and this
+                    onClick={() => toggleSong()}
                     className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300"
                   >
                     <span

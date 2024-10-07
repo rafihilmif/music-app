@@ -5,6 +5,7 @@ import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import { getSession, useSession } from 'next-auth/react';
 import Navbar from '@/components/user/Navbar';
+import Swal from 'sweetalert2';
 
 export default function index() {
   const { data: session } = useSession();
@@ -99,8 +100,23 @@ export default function index() {
     }
 
     try {
-      await axios.put(`${baseURL}/account/artist?email=${email}`, data);
-      alert('Successfully updated bio', router.reload());
+      const response = await axios.put(
+        `${baseURL}/account/artist?email=${email}`,
+        data,
+      );
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+          // console.log(response.data.message);
+          // console.log(response.data.data);
+        });
+      }
     } catch (error) {
       if (error.response && error.response.status === 401) {
         alert('Old password is incorrect. Please try again.');

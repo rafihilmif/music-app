@@ -205,16 +205,16 @@ export default function index() {
       );
       const { token } = response.data;
       setSnapToken(token);
+      // console.log(response.data.data);
       window.snap.pay(token, {
         onSuccess: function (result) {
-          alert('Payment success:' + result);
           router.push('/fans');
         },
         onPending: function (result) {
           alert('Payment pending:' + result);
         },
         onError: function (result) {
-         alert('Payment error:' + result);
+          alert('Payment error:' + result);
         },
         onClose: function () {
           console.log('Payment popup closed');

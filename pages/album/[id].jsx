@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Navbar from '@/components/user/Navbar';
 import { Schedule, PlayArrow } from '@mui/icons-material';
@@ -6,6 +6,7 @@ import axios from 'axios';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import { getSession } from 'next-auth/react';
+import usePlayerStore from '@/store/usePlayerStore';
 
 export default function index() {
   const router = useRouter();
@@ -16,12 +17,63 @@ export default function index() {
   const [nameAlbum, setNameAlbum] = useState('');
   const [nameArtist, setNameArtist] = useState('');
   const [thumbnail, setThumbnail] = useState('');
+  const [durations, setDurations] = useState({});
+  const [totalSongs, setTotalSongs] = useState();
+
+  const audioRef = useRef(null);
+  const {
+    setSongs,
+    setCurrentSong,
+    setCurrentSongIndex,
+    playStatus,
+    setPlayStatus,
+  } = usePlayerStore();
+
+  const handlePlaySong = async (song, index) => {
+    if (!song) return;
+
+    const songData = {
+      id: song.id_song,
+      name: song.name,
+      artist: song.Artist.name,
+      image: song.image,
+      audio: song.audio_path || song.audio,
+    };
+    try {
+      await setCurrentSong(songData);
+      setCurrentSongIndex(index);
+      setPlayStatus(true);
+      if (audioRef.current) {
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('Error setting up song:', error);
+    }
+  };
+
+  const toggleSong = async (e, song, index) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const currentSong = usePlayerStore.getState().currentSong;
+    if (currentSong && song && currentSong.id === song.id_song) {
+      if (playStatus) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+    } else {
+      await handlePlaySong(song, index);
+    }
+  };
 
   useEffect(() => {
     async function fetchDataSong() {
       try {
         const response = await axios.get(`${baseURL}/album/song?id=${id}`);
-        setDataSong(response.data);
+        setDataSong(response.data.songs);
+        setSongs(response.data.songs);
+        setTotalSongs(response.data.totalSongs);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -43,6 +95,25 @@ export default function index() {
     }
     fetchDataAlbum();
   }, [id]);
+
+  useEffect(() => {
+    if (dataSong.length > 0) {
+      dataSong.forEach((song, index) => {
+        const audio = new Audio(`${baseURLFile}/assets/audio/${song.audio}`);
+        audio.onloadedmetadata = () => {
+          const duration = audio.duration;
+          const minutes = Math.floor(duration / 60);
+          const seconds = Math.floor(duration % 60);
+          const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+          setDurations((prev) => ({
+            ...prev,
+            [index]: formattedTime,
+          }));
+        };
+      });
+    }
+  }, [dataSong, baseURLFile]);
 
   const [hoverIndex, setHoverIndex] = useState([]);
 
@@ -76,8 +147,7 @@ export default function index() {
               src={`${baseURLFile}/assets/image/album/${thumbnail}`}
               alt=""
             />
-            <b> {nameArtist}</b> · 1,234,154 likes · <b>20 songs, </b>
-            about 5 hr 30 min
+            <b> {nameArtist}</b> · <b>{totalSongs} songs</b>
           </p>
         </div>
       </div>
@@ -93,6 +163,7 @@ export default function index() {
       {dataSong.map((item, index) => (
         <div
           key={index}
+          onClick={() => handlePlaySong(item, index)}
           onMouseEnter={() => onHover(index)}
           onMouseLeave={() => onHoverLeave(index)}
           className="grid cursor-pointer grid-cols-2 items-center gap-2 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b] sm:grid-cols-2"
@@ -114,7 +185,7 @@ export default function index() {
             />
             <b>{item.name}</b>
           </div>
-          <p className="mr-2 w-4 justify-self-end">3:01</p>
+          <p className="mr-2 w-4 justify-self-end">{durations[index]}</p>
         </div>
       ))}
     </>

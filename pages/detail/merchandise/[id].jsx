@@ -167,7 +167,7 @@ export default function detailMerchById() {
     }
 
     try {
-      await axios
+      const response = await axios
         .post(`${baseURL}/fans/cart`, {
           id_fans: idFans,
           id_merchandise: id,
@@ -175,6 +175,10 @@ export default function detailMerchById() {
           size: isGarmentType ? selectedSize : null,
         })
         .then(alert('Successfully add item to cart'), router.reload());
+      if (response.status === 200) {
+        console.log(response.data.message);
+        console.log(response.data.data);
+      }
     } catch (error) {
       alert('Terjadi kesalahan: ' + error.message);
     }
@@ -279,7 +283,7 @@ export default function detailMerchById() {
                   {formatCurrency(price)}
                 </h2>
 
-                {role === 'fans' ? (
+                {role === true ? (
                   <div className="-mx-2 mb-10 flex flex-wrap">
                     <div className="xs:w-4/12 xs:mb-0 mb-4 w-full px-2 md:w-3/12">
                       <div className="xs:w-full border-coolGray-200 inline-flex h-full items-center justify-between gap-2 rounded-md border px-4 py-3">

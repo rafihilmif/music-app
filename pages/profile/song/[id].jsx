@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import { Edit, Delete } from '@mui/icons-material';
+import { PlayArrowOutlined } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Navbar from '@/components/user/Navbar';
 import { getSession } from 'next-auth/react';
+import usePlayerStore from '@/store/usePlayerStore';
 
 export default function collectionSongByArtist() {
   const router = useRouter();
@@ -18,6 +19,15 @@ export default function collectionSongByArtist() {
   const [isLoading, setIsLoading] = useState(true);
 
   const observer = useRef();
+
+  const audioRef = useRef(null);
+  const {
+    setSongs,
+    setCurrentSong,
+    setCurrentSongIndex,
+    playStatus,
+    setPlayStatus,
+  } = usePlayerStore();
 
   const fetchData = useCallback(
     async (page) => {
@@ -40,6 +50,44 @@ export default function collectionSongByArtist() {
     [id],
   );
 
+  const handlePlaySong = async (song, index) => {
+    if (!song) return;
+
+    const songData = {
+      id: song.id_song,
+      name: song.name,
+      artist: song.Artist.name,
+      image: song.image,
+      audio: song.audio_path || song.audio,
+    };
+    try {
+      await setCurrentSong(songData);
+      setCurrentSongIndex(index);
+      setPlayStatus(true);
+      if (audioRef.current) {
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('Error setting up song:', error);
+    }
+  };
+
+  const toggleSong = async (e, song, index) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const currentSong = usePlayerStore.getState().currentSong;
+    if (currentSong && song && currentSong.id === song.id_song) {
+      if (playStatus) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+    } else {
+      await handlePlaySong(song, index);
+    }
+  };
+
   const lastElementRef = useCallback(
     (node) => {
       if (isLoading) return;
@@ -59,11 +107,13 @@ export default function collectionSongByArtist() {
       setIsLoading(true);
       setCurrentPage(1);
       setData([]);
+      setSongs([]);
       try {
         const response = await axios.get(
           `${baseURL}/collection/song?id=${id}&page=${page}`,
         );
         setData((prevData) => [...prevData, ...response.data.data]);
+        setSongs((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -87,12 +137,14 @@ export default function collectionSongByArtist() {
       setIsLoading(true);
       setCurrentPage(1);
       setData([]);
+      setSongs([]);
       try {
         const response = await axios.get(
           `${baseURL}/collection/song/sort/new?id=${id}&page=${page}`,
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
+        setSongs((prevData) => [...prevData, ...response.data.data]);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -109,12 +161,14 @@ export default function collectionSongByArtist() {
       setIsLoading(true);
       setCurrentPage(1);
       setData([]);
+      setSongs([]);
       try {
         const response = await axios.get(
           `${baseURL}/collection/song/sort/old?id=${id}&page=${page}`,
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
+        setSongs((prevData) => [...prevData, ...response.data.data]);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -156,17 +210,29 @@ export default function collectionSongByArtist() {
               </div>
             </div>
             <div className="grid flex-grow grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-              {data.map((item, i) => (
+              {data.map((item, index) => (
                 <div
-                  key={i}
-                  className="relative flex min-w-[180px] cursor-pointer flex-col rounded p-2  hover:bg-gray-700"
+                  key={index}
+                  className="group relative flex min-w-[180px] cursor-pointer flex-col rounded p-2 hover:bg-gray-700"
                 >
-                  <img
-                    className="rounded"
-                    width={210}
-                    height={210}
-                    src={`${baseURLFile}/assets/image/song/${item.image}`}
-                  />
+                  <div className="relative">
+                    <img
+                      className="rounded"
+                      width={210}
+                      height={210}
+                      src={`${baseURLFile}/assets/image/song/${item.image}`}
+                      alt={item.name}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="rounded-full bg-green-500 p-4">
+                        <PlayArrowOutlined
+                          onClick={() => handlePlaySong(item, index)}
+                          className="h-6 w-6 text-white"
+                          fill="white"
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <p className="mb-1 mt-2 font-bold">{item.name}</p>
                   <p className="text-sm text-slate-200">{item.artist}</p>
                 </div>

@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
+import usePlayerStore from '@/store/usePlayerStore';
 
 export default function index() {
   const router = useRouter();
@@ -22,6 +23,16 @@ export default function index() {
   const [idArtistTop, setidArtistTop] = useState('');
   const [imageArtistTop, setImageArtistTop] = useState('');
   const [loading, setLoading] = useState(true);
+  const [durations, setDurations] = useState({});
+
+  const audioRef = useRef(null);
+  const {
+    setSongs,
+    setCurrentSong,
+    setCurrentSongIndex,
+    playStatus,
+    setPlayStatus,
+  } = usePlayerStore();
 
   useEffect(() => {
     const fetchDataArtistTop = async () => {
@@ -43,6 +54,44 @@ export default function index() {
     }
   }, [name]);
 
+  const handlePlaySong = async (song, index) => {
+    if (!song) return;
+
+    const songData = {
+      id: song.id_song,
+      name: song.name,
+      artist: song.Artist.name,
+      image: song.image,
+      audio: song.audio_path || song.audio,
+    };
+    try {
+      await setCurrentSong(songData);
+      setCurrentSongIndex(index);
+      setPlayStatus(true);
+      if (audioRef.current) {
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('Error setting up song:', error);
+    }
+  };
+
+  const toggleSong = async (e, song, index) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const currentSong = usePlayerStore.getState().currentSong;
+    if (currentSong && song && currentSong.id === song.id_song) {
+      if (playStatus) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+    } else {
+      await handlePlaySong(song, index);
+    }
+  };
+
   useEffect(() => {
     const fetchDataSongTop = async () => {
       try {
@@ -50,6 +99,7 @@ export default function index() {
           `${baseURL}/result/top/song?name=${name}`,
         );
         setDataSongTop(response.data);
+        setSongs(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -216,9 +266,10 @@ export default function index() {
             {dataSongTop.map((item, index) => (
               <div
                 key={index}
+                onClick={() => handlePlaySong(item, index)}
                 onMouseEnter={() => onHover(index)}
                 onMouseLeave={() => onHoverLeave(index)}
-                className="flex items-center space-x-4 rounded-lg p-3 hover:bg-gray-700"
+                className="flex cursor-pointer items-center space-x-4 rounded-lg p-3 hover:bg-gray-700"
               >
                 <div className="relative h-16 w-16">
                   <img
@@ -262,7 +313,7 @@ export default function index() {
         <h1 className="my-2 text-2xl font-bold">Albums</h1>
         <div className="flex flex-wrap gap-6 overflow-auto">
           {dataAlbum.map((item, i) => (
-            <a key={i}>
+            <a key={i} href={`/album/${item.id_album}`}>
               <div className="min-w-[140px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
                 <img
                   className="h-44 w-44 rounded"

@@ -55,6 +55,7 @@ export default function index() {
           `${baseURL}/fans/order?id=${id}&page=${1}`,
         );
         setDataOrderPayment(response.data.data);
+        console.log(response.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }

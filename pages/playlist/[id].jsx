@@ -1,5 +1,5 @@
 import Navbar from '@/components/user/Navbar';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { PlayArrow, Schedule } from '@mui/icons-material';
@@ -8,6 +8,7 @@ import { baseURL } from '@/baseURL';
 import { MoreHoriz } from '@mui/icons-material';
 
 import { baseURLFile } from '@/baseURLFile';
+import usePlayerStore from '@/store/usePlayerStore';
 
 export default function Index() {
   const router = useRouter();
@@ -28,8 +29,57 @@ export default function Index() {
   const [hoverIndex, setHoverIndex] = useState(null);
   const [showOptionsIndex, setShowOptionsIndex] = useState(null);
 
+  const [durations, setDurations] = useState({});
+
   const sanitizeSearchQuery = (query) => {
     return query.replace(/[^\w\s]/gi, '').trim();
+  };
+
+  const audioRef = useRef(null);
+  const {
+    setSongs,
+    setCurrentSong,
+    setCurrentSongIndex,
+    playStatus,
+    setPlayStatus,
+  } = usePlayerStore();
+
+  const handlePlaySong = async (song, index) => {
+    if (!song) return;
+
+    const songData = {
+      id: song.Song.id_song,
+      name: song.Song.name,
+      artist: song.Song.Artist.name,
+      image: song.Song.image,
+      audio: song.Song.audio,
+    };
+    try {
+      await setCurrentSong(songData);
+      setCurrentSongIndex(index);
+      setPlayStatus(true);
+      if (audioRef.current) {
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('Error setting up song:', error);
+    }
+  };
+
+  const toggleSong = async (e, song, index) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const currentSong = usePlayerStore.getState().currentSong;
+    if (currentSong && song && currentSong.id === song.id_song) {
+      if (playStatus) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+    } else {
+      await handlePlaySong(song, index);
+    }
   };
 
   useEffect(() => {
@@ -91,12 +141,34 @@ export default function Index() {
         const response = await axios.get(`${baseURL}/playlist/song?id=${id}`);
         setDataPlaylistSong(response.data.songs);
         setTotalSongPlaylist(response.data.totalSongs);
+        setSongs(response.data.songs);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchDataPlaylistSong();
   }, [id]);
+
+  useEffect(() => {
+    if (dataPlaylistSong.length > 0) {
+      dataPlaylistSong.forEach((song, index) => {
+        const audio = new Audio(
+          `${baseURLFile}/assets/audio/${song.Song.audio}`,
+        );
+        audio.onloadedmetadata = () => {
+          const duration = audio.duration;
+          const minutes = Math.floor(duration / 60);
+          const seconds = Math.floor(duration % 60);
+          const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+          setDurations((prev) => ({
+            ...prev,
+            [index]: formattedTime,
+          }));
+        };
+      });
+    }
+  }, [dataPlaylistSong, baseURLFile]);
 
   useEffect(() => {
     const sanitizedQuery = sanitizeSearchQuery(searchQuery);
@@ -117,7 +189,7 @@ export default function Index() {
 
   const handleAddSong = async (idSong) => {
     try {
-      await axios
+      const response = await axios
         .post(
           `${baseURL}/user/add/song/playlist?idPlaylist=${id}&idSong=${idSong}`,
         )
@@ -182,12 +254,16 @@ export default function Index() {
           {dataPlaylistSong.map((item, index) => (
             <div
               key={index}
+              onClick={() => handlePlaySong(item, index)}
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(null)}
               className={`grid items-center gap-2 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b] ${idOwnerCheck === idOwnerPlaylist ? 'grid-cols-2 sm:grid-cols-2' : 'grid-cols-[1fr,auto] sm:grid-cols-[1fr,auto]'}`}
             >
               <div className="flex items-center text-white">
-                <button className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300">
+                <button
+                  onClick={() => toggleSong()}
+                  className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300"
+                >
                   <span
                     className={`absolute font-medium transition-opacity duration-300 ${hoverIndex === index ? 'opacity-0' : 'opacity-100'}`}
                   >
@@ -210,7 +286,9 @@ export default function Index() {
                 </div>
               </div>
               <div className="flex items-center justify-between pr-4">
-                <p className="mr-4 text-right text-sm text-[#a7a7a7]">3:01</p>
+                <p className="mr-4 text-right text-sm text-[#a7a7a7]">
+                  {durations[index]}
+                </p>
                 {idOwnerCheck === idOwnerPlaylist && (
                   <div className="relative">
                     <MoreHoriz
@@ -241,7 +319,6 @@ export default function Index() {
         </>
       )}
 
-      {/* Search Input and Results */}
       {idOwnerCheck === idOwnerPlaylist && (
         <div className="mt-10 flex flex-col justify-start">
           <h1 className="mb-2">
@@ -255,8 +332,6 @@ export default function Index() {
             placeholder="Search for songs"
             className="mb-4 w-full max-w-lg rounded-lg bg-[#2f3135] p-2 text-white"
           />
-
-          {/* Search Results */}
           {dataSearchSongResults.length > 0 && (
             <div className="max-w-full px-4">
               {dataSearchSongResults.map((item, index) => (
@@ -264,7 +339,6 @@ export default function Index() {
                   key={index}
                   className="grid grid-cols-[auto,1fr,auto,auto] items-center gap-4 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b]"
                 >
-                  {/* Song Name */}
                   <div className="flex items-center">
                     <img
                       className="mr-5 inline w-10 rounded-sm"
@@ -274,7 +348,6 @@ export default function Index() {
                     <b className="truncate">{item.name}</b>
                   </div>
 
-                  {/* Add Button */}
                   <div className="justify-self-end">
                     <button
                       onClick={() => handleAddSong(item.id_song)}

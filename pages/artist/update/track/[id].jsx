@@ -24,6 +24,7 @@ export default function index() {
   const [OldName, setOldName] = useState('');
   const [OldGenre, setOldGenre] = useState('');
   const [OldAlbum, setOldAlbum] = useState('');
+  const [OldAlbumId, setOldAlbumId] = useState('');
   const [OldReleaseDate, setOldReleaseData] = useState('');
   const [OldCredit, setOldCredit] = useState('');
   const [OldLyric, setOldLyric] = useState('');
@@ -82,7 +83,7 @@ export default function index() {
         setOldCredit(response.data.credit);
         setOldLyric(response.data.lyric);
         setOldImage(response.data.image);
-
+        setOldAlbumId(response.data.id_album);
         setIsChecked(response.data.status === 1);
 
         // setOldAudio(response.data.audio);
@@ -176,9 +177,7 @@ export default function index() {
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
         }).then(() => {
-          //  window.location.reload();
-          console.log(response.data.message);
-          console.log(response.data.data);
+          window.location.reload();
         });
       }
     } catch (error) {
@@ -234,7 +233,16 @@ export default function index() {
                 <p className="w-32 shrink-0 text-lg font-medium">Album</p>
                 <div className="relative w-full rounded-lg ">
                   <select
-                    onChange={(e) => updateField('album', e.target.value)}
+                    onChange={(e) => {
+                      const selectedAlbum = dataAlbum.find(
+                        (album) => album.name === e.target.value,
+                      );
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        album: selectedAlbum.name,
+                        id_album: selectedAlbum.id_album,
+                      }));
+                    }}
                     className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                   >
                     <option value={OldAlbum} className="text-black">

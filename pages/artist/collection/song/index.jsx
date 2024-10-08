@@ -176,7 +176,7 @@ export default function index() {
                   className="relative flex min-w-[180px] cursor-pointer flex-col rounded p-2  hover:bg-gray-700"
                 >
                   <img
-                    className="rounded"
+                    className="mb-4 aspect-square w-full rounded object-cover"
                     width={210}
                     height={210}
                     src={`${baseURLFile}/assets/image/song/${item.image}`}

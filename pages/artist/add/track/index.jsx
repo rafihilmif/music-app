@@ -113,8 +113,8 @@ export default function index() {
     formData.append('credit', credit);
     formData.append('status', status);
 
-    if (album === undefined) {
-      formData.append('album', null);
+    if (album === '-') {
+      formData.append('album', '-');
     } else {
       formData.append('album', album);
     }
@@ -202,10 +202,12 @@ export default function index() {
                     onChange={(e) => setAlbum(e.target.value)}
                     className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                   >
-                    <option className="text-black" value="-">
+                    <option className="text-black" value="">
                       Please select album...
                     </option>
-
+                    <option className="text-black" value="-">
+                      -
+                    </option>
                     {dataAlbum.map((item, i) => (
                       <option className="text-black" key={i} value={item.name}>
                         {item.name}

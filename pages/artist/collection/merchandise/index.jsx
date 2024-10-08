@@ -396,7 +396,7 @@ export default function index() {
                   >
                     {item.images && (
                       <img
-                        className="rounded"
+                        className="mb-4 aspect-square w-full rounded object-cover"
                         width={210}
                         height={210}
                         src={`${baseURLFile}/assets/image/merchandise/${item.images[0].name}`}

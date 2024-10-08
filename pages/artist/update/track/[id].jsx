@@ -299,10 +299,6 @@ export default function index() {
                       {hovered && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="flex flex-col items-center">
-                            <Clear
-                              // onClick={() => removeImage(item, i)}
-                              className="absolute right-5 top-5 cursor-pointer text-red-500 hover:border-red-400 hover:text-red-700"
-                            />
                             <label
                               htmlFor={`file-input`}
                               className="text-md group relative h-10 w-36 cursor-pointer overflow-hidden rounded-md bg-blue-500 p-2 font-bold text-white"

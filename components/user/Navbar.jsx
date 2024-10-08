@@ -243,7 +243,7 @@ export default function Navbar() {
                                       {item.qty}
                                     </p>
                                   </div>
-                                  <button
+                                  {/* <button
                                     type="button"
                                     className="absolute right-1 top-0 z-10 mr-2 mt-2 text-red-600 hover:text-red-700 dark:text-red-500 dark:hover:text-red-600"
                                   >
@@ -260,21 +260,21 @@ export default function Navbar() {
                                         clipRule="evenodd"
                                       />
                                     </svg>
-                                  </button>
+                                  </button> */}
                                 </div>
                               </div>
                             </li>
                           ))}
 
                           <div className="px-4 py-2">
-                            <div className="mb-5 mt-5 flex justify-between">
+                            {/* <div className="mb-5 mt-5 flex justify-between">
                               <p className="text-base font-semibold text-gray-900 dark:text-white">
                                 Subtotal
                               </p>
                               <p className="text-base font-semibold text-gray-900 dark:text-white">
                                 {formatCurrency(1950000)}
                               </p>
-                            </div>
+                            </div> */}
                             <div className="mb-5">
                               <p className="text-xs font-extralight text-gray-400 dark:text-white">
                                 Tax included. Shipping calculated at checkout.

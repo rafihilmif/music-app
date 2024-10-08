@@ -402,7 +402,7 @@ export default function detailMerchById() {
                 <div className="flex min-w-[180px] cursor-pointer flex-col rounded p-2 px-2 hover:bg-gray-700">
                   {item.images && (
                     <img
-                      className="rounded"
+                      className="mb-4 aspect-square w-full rounded object-cover"
                       width={210}
                       height={210}
                       src={`${baseURLFile}/assets/image/merchandise/${item.images[0].name}`}

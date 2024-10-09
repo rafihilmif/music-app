@@ -121,7 +121,7 @@ export default function index() {
   return (
     <>
       <Navbar />
-      <div className="mt-10 h-auto w-full overflow-hidden px-2">
+      <div className=" my-5 h-auto w-full overflow-hidden rounded-lg px-2">
         <div className="w-full bg-transparent px-2 py-4 font-sans">
           <h1 className="mb-4 text-3xl font-bold">
             History Order & Subscription
@@ -297,7 +297,7 @@ export default function index() {
                     </div>
                   </div>
                 ) : selectedType === 'subscription' ? (
-                  <div className="mt-6 flow-root sm:mt-8">
+                  <div className=" my-5 h-auto w-full overflow-hidden rounded-lg px-2">
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
                       {dataPlanPayment.map((item) => {
                         return (
@@ -414,7 +414,7 @@ export default function index() {
                 ) : null}
 
                 <nav
-                  className="mt-6 flex items-center justify-center sm:mt-8"
+                  className="flex items-center justify-center sm:mt-8"
                   aria-label="Page navigation example"
                 >
                   <ul className="flex h-8 items-center -space-x-px text-sm">

@@ -18,6 +18,8 @@ export default function index() {
   const [userHasLogin, setUserHasLogin] = useState('');
   const [idUserHasLogin, setIdUserHasLogin] = useState('');
   const [isFollowed, setIsFollowed] = useState(false);
+  const [planStatus, setPlanStatus] = useState(null);
+  const [idFans, setIdFans] = useState(null);
 
   const [thumbnail, setThumbnail] = useState();
   const [name, setName] = useState('');
@@ -97,6 +99,7 @@ export default function index() {
             );
             setUserHasLogin(response.data.username);
             setIdUserHasLogin(response.data.id_fans);
+            setIdFans(response.data.id_fans);
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -105,6 +108,24 @@ export default function index() {
     };
     fetchDataHasLogin();
   }, [status, session]);
+
+  useEffect(() => {
+    const fetchDataPlan = async () => {
+      if (status === 'authenticated' && session.user.role === 'fans') {
+        try {
+          const response = await axios.get(
+            `${baseURL}/fans/plan/detail?id=${idFans}`,
+          );
+          setPlanStatus(response.data.type);
+        } catch (error) {
+          console.log("You're not fans");
+        }
+      }
+    };
+    if (idFans) {
+      fetchDataPlan();
+    }
+  }, [status, session, idFans]);
 
   useEffect(() => {
     const fetchArtistData = async () => {
@@ -386,19 +407,19 @@ export default function index() {
               Show All
             </Link>
           </div>
-          <div className="flex overflow-auto">
+          <div className="flex space-x-4 overflow-x-auto">
             {dataAlbum.map((item, i) => (
               <Link key={i} href={`/album/${item.id_album}`}>
-                <div className="min-w-[220px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
-                  <img
-                    className="rounded"
-                    width={210}
-                    height={210}
-                    src={`${baseURLFile}/assets/image/album/${item.image}`}
-                  />
-
-                  <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                  <p className="text-sm text-slate-200">
+                <div className="w-[230px] flex-shrink-0 cursor-pointer rounded p-2 hover:bg-gray-700">
+                  <div className="h-[210px] w-[210px] overflow-hidden rounded">
+                    <img
+                      className="h-full w-full object-cover"
+                      src={`${baseURLFile}/assets/image/album/${item.image}`}
+                      alt={item.name}
+                    />
+                  </div>
+                  <p className="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                  <p className="truncate text-sm text-slate-200">
                     {item.created_at?.slice(0, 4)} · Album
                   </p>
                 </div>
@@ -406,38 +427,54 @@ export default function index() {
             ))}
           </div>
         </div>
-
         <div className="mt-10 flex flex-col">
           <h1 className="text-xl font-bold">Song</h1>
           {dataSong.map((item, index) => (
             <div key={index}>
               <div
-                onClick={() => handlePlaySong(item, index)}
-                onMouseEnter={() => onHover(index)}
-                onMouseLeave={() => onHoverLeave(index)}
-                className="mt-3 grid cursor-pointer grid-cols-2 items-center gap-5 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b] sm:grid-cols-2"
+                onClick={
+                  planStatus !== 'free'
+                    ? () => handlePlaySong(item, index)
+                    : null
+                }
+                onMouseEnter={
+                  planStatus !== 'free' ? () => onHover(index) : null
+                }
+                onMouseLeave={
+                  planStatus !== 'free' ? () => onHoverLeave(index) : null
+                }
+                className={`mt-3 grid items-center gap-5 p-2 text-[#a7a7a7] ${
+                  planStatus === 'free'
+                    ? 'cursor-not-allowed'
+                    : 'cursor-pointer hover:bg-[#ffffff2b]'
+                } sm:grid-cols-2`}
               >
                 <div className="flex items-center text-white">
                   <button
-                    onClick={() => toggleSong()}
+                    onClick={planStatus !== 'free' ? () => toggleSong() : null}
                     className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300"
+                    disabled={planStatus === 'free'}
                   >
                     <span
-                      className={`absolute font-medium transition-opacity duration-300 ${hoverIndex[index] ? 'opacity-0' : 'opacity-100'}`}
+                      className={`absolute font-medium transition-opacity duration-300 ${
+                        hoverIndex[index] ? 'opacity-0' : 'opacity-100'
+                      }`}
                     >
                       {index + 1}
                     </span>
                     <PlayArrow
-                      className={`absolute transition-opacity duration-300 ${hoverIndex[index] ? 'opacity-100' : 'opacity-0'}`}
+                      className={`absolute transition-opacity duration-300 ${
+                        hoverIndex[index] ? 'opacity-100' : 'opacity-0'
+                      }`}
                     />
                   </button>
                   <img
                     className="mr-5 inline w-10 rounded-sm"
                     src={`${baseURLFile}/assets/image/song/${item.image}`}
+                    alt={item.name}
                   />
                   <b>{item.name}</b>
                 </div>
-
                 <p>{durations[index]}</p>
               </div>
             </div>
@@ -461,21 +498,23 @@ export default function index() {
               Show All
             </Link>
           </div>
-          <div className="flex overflow-auto">
+          <div className="flex space-x-4 overflow-x-auto">
             {dataMerchandise.map((item, i) => (
               <Link href={`/detail/merchandise/${item.id_merchandise}`} key={i}>
-                <div className="flex min-w-[180px] cursor-pointer flex-col rounded p-2 px-2 hover:bg-gray-700">
-                  {item.images && item.images.length > 0 && (
-                    <img
-                      className="rounded"
-                      width={210}
-                      height={210}
-                      src={`${baseURLFile}/assets/image/merchandise/${item.images[0].name}`}
-                      alt={`Merchandise ${item.name}`}
-                    />
-                  )}
-                  <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                  <p className="text-sm text-slate-200">{item.artist}</p>
+                <div className="w-[230px] flex-shrink-0 cursor-pointer rounded p-2 hover:bg-gray-700">
+                  <div className="h-[210px] w-[210px] overflow-hidden rounded">
+                    {item.images && item.images.length > 0 && (
+                      <img
+                        className="h-full w-full object-cover"
+                        src={`${baseURLFile}/assets/image/merchandise/${item.images[0].name}`}
+                        alt={`Merchandise ${item.name}`}
+                      />
+                    )}
+                  </div>
+                  <p className="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                  <p className="truncate text-sm text-slate-200">
+                    {item.artist}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -491,19 +530,21 @@ export default function index() {
               Show All
             </Link>
           </div>
-          <div className="flex overflow-auto">
+          <div className="flex space-x-4 overflow-x-auto">
             {dataShow.map((item, i) => (
               <Link href={`/detail/show/${item.id_show}`} key={i}>
-                <div className="min-w-[220px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
-                  <img
-                    className="rounded"
-                    width={210}
-                    height={210}
-                    src={`${baseURLFile}/assets/image/shows/${item.image}`}
-                  />
-
-                  <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                  <p className="text-sm text-slate-200">{item.duedate}</p>
+                <div className="w-[230px] flex-shrink-0 cursor-pointer rounded p-2 hover:bg-gray-700">
+                  <div className="h-[210px] w-[210px] overflow-hidden rounded">
+                    <img
+                      className="h-full w-full object-cover"
+                      src={`${baseURLFile}/assets/image/shows/${item.image}`}
+                      alt={item.name}
+                    />
+                  </div>
+                  <p className="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                  <p className="truncate text-sm text-slate-200">
+                    {item.duedate}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -511,19 +552,21 @@ export default function index() {
         </div>
         <div className="mb-4 mt-10 ">
           <h1 className="my-5 text-xl font-bold">Playlist</h1>
-          <div className="flex overflow-auto">
+          <div className="flex space-x-4 overflow-x-auto">
             {dataPlaylist.map((item, i) => (
               <Link href={`/playlist/${item.id_playlist}`} key={i}>
-                <div className="min-w-[220px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
-                  <img
-                    className="rounded"
-                    width={210}
-                    height={210}
-                    src={`${baseURLFile}/assets/image/playlist/${item.image}`}
-                  />
-
-                  <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                  <p className="text-sm text-slate-200">{item.duedate}</p>
+                <div className="w-[230px] flex-shrink-0 cursor-pointer rounded p-2 hover:bg-gray-700">
+                  <div className="h-[210px] w-[210px] overflow-hidden rounded">
+                    <img
+                      className="h-full w-full object-cover"
+                      src={`${baseURLFile}/assets/image/playlist/${item.image}`}
+                      alt={item.name}
+                    />
+                  </div>
+                  <p className="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                  <p className="truncate text-sm text-slate-200">
+                    {item.duedate}
+                  </p>
                 </div>
               </Link>
             ))}

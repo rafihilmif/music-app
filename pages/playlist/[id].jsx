@@ -26,6 +26,9 @@ export default function Index() {
   const [totalSongPlaylist, setTotalSongPlaylist] = useState('');
   const [dataSearchSongResults, setDataSearchSongResults] = useState([]);
 
+  const [idFans, setIdFans] = useState(null);
+  const [planStatus, setPlanStatus] = useState(null);
+
   const [hoverIndex, setHoverIndex] = useState(null);
   const [showOptionsIndex, setShowOptionsIndex] = useState(null);
 
@@ -83,6 +86,24 @@ export default function Index() {
   };
 
   useEffect(() => {
+    const fetchDataPlan = async () => {
+      if (status === 'authenticated' && session.user.role === 'fans') {
+        try {
+          const response = await axios.get(
+            `${baseURL}/fans/plan/detail?id=${idFans}`,
+          );
+          setPlanStatus(response.data.type);
+        } catch (error) {
+          console.log("You're not fans");
+        }
+      }
+    };
+    if (idFans) {
+      fetchDataPlan();
+    }
+  }, [status, session, idFans]);
+
+  useEffect(() => {
     const fetchDataPlaylist = async () => {
       try {
         const response = await axios.get(
@@ -112,6 +133,7 @@ export default function Index() {
             `${baseURL}/detail/fans?email=${session.user.email}`,
           );
           setIdOwnerCheck(response.data.id_fans);
+          setIdFans(response.data.id_fans);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -208,6 +230,10 @@ export default function Index() {
       alert('Error: ' + error.message);
     }
   };
+  useEffect(() => {
+    console.log(planStatus);
+  }, [planStatus]);
+
   return (
     <>
       <Navbar />
@@ -254,15 +280,22 @@ export default function Index() {
           {dataPlaylistSong.map((item, index) => (
             <div
               key={index}
-              onClick={() => handlePlaySong(item, index)}
-              onMouseEnter={() => setHoverIndex(index)}
-              onMouseLeave={() => setHoverIndex(null)}
-              className={`grid items-center gap-2 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b] ${idOwnerCheck === idOwnerPlaylist ? 'grid-cols-2 sm:grid-cols-2' : 'grid-cols-[1fr,auto] sm:grid-cols-[1fr,auto]'}`}
+              onClick={
+                planStatus !== 'free' ? () => handlePlaySong(item, index) : null
+              }
+              onMouseEnter={
+                planStatus !== 'free' ? () => setHoverIndex(index) : null
+              }
+              onMouseLeave={
+                planStatus !== 'free' ? () => setHoverIndex(null) : null
+              }
+              className={`grid items-center gap-2 p-2 text-[#a7a7a7] ${planStatus === 'free' ? 'cursor-not-allowed' : 'hover:bg-[#ffffff2b]'} ${idOwnerCheck === idOwnerPlaylist ? 'grid-cols-2 sm:grid-cols-2' : 'grid-cols-[1fr,auto] sm:grid-cols-[1fr,auto]'}`}
             >
               <div className="flex items-center text-white">
                 <button
-                  onClick={() => toggleSong()}
-                  className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300"
+                  onClick={planStatus !== 'free' ? () => toggleSong() : null}
+                  className={`relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300`}
+                  disabled={planStatus === 'free'}
                 >
                   <span
                     className={`absolute font-medium transition-opacity duration-300 ${hoverIndex === index ? 'opacity-0' : 'opacity-100'}`}
@@ -292,18 +325,23 @@ export default function Index() {
                 {idOwnerCheck === idOwnerPlaylist && (
                   <div className="relative">
                     <MoreHoriz
-                      onClick={() =>
-                        setShowOptionsIndex(
-                          showOptionsIndex === index ? null : index,
-                        )
+                      onClick={
+                        planStatus !== 'free'
+                          ? () =>
+                              setShowOptionsIndex(
+                                showOptionsIndex === index ? null : index,
+                              )
+                          : null
                       }
                       className="cursor-pointer text-gray-400 hover:text-white"
                     />
                     {showOptionsIndex === index && (
                       <div className="absolute -right-8 z-40 mt-1 w-28 rounded-md bg-[#2f3135] shadow-lg">
                         <button
-                          onClick={() =>
-                            handleRemoveSong(item.id_playlist_song)
+                          onClick={
+                            planStatus !== 'free'
+                              ? () => handleRemoveSong(item.id_playlist_song)
+                              : null
                           }
                           className="block w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-[#3e4043]"
                         >

@@ -67,13 +67,7 @@ const usePlayerStore = create(
         const nextSong = songs[nextIndex];
 
         if (nextSong) {
-          get().setCurrentSong({
-            id: nextSong.id_song,
-            name: nextSong.name,
-            artist: nextSong.Artist.name,
-            image: nextSong.image,
-            audio: nextSong.audio,
-          });
+          get().setCurrentSong(get().formatSongData(nextSong));
           set({ currentSongIndex: nextIndex });
         }
       },
@@ -85,14 +79,31 @@ const usePlayerStore = create(
         const prevSong = songs[prevIndex];
 
         if (prevSong) {
-          get().setCurrentSong({
-            id: prevSong.id_song,
-            name: prevSong.name,
-            artist: prevSong.Artist.name,
-            image: prevSong.image,
-            audio: prevSong.audio,
-          });
+          get().setCurrentSong(get().formatSongData(prevSong));
           set({ currentSongIndex: prevIndex });
+        }
+      },
+
+      formatSongData: (song) => {
+        // Check if it's a playlist song
+        if (song.Song) {
+          return {
+            id: song.Song.id_song,
+            name: song.Song.name,
+            artist: song.Song.Artist.name,
+            image: song.Song.image,
+            audio: song.Song.audio,
+          };
+        }
+        // Regular song
+        else {
+          return {
+            id: song.id_song,
+            name: song.name,
+            artist: song.Artist.name,
+            image: song.image,
+            audio: song.audio,
+          };
         }
       },
 

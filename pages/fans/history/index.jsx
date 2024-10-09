@@ -15,6 +15,12 @@ export default function index() {
   const [dataOrderPayment, setDataOrderPayment] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [selectedType, setSelectedType] = useState('order');
+  const [totalOrder, setTotalOrder] = useState(0);
+  const [totalPlan, setTotalPlan] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [currentOrderPage, setCurrentOrderPage] = useState(1);
+  const [currentPlanPage, setCurrentPlanPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,6 +45,7 @@ export default function index() {
           `${baseURL}/plan/payment?id=${id}&page=${1}`,
         );
         setDataPlanPayment(response.data.data);
+        setTotalPlan(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -55,7 +62,7 @@ export default function index() {
           `${baseURL}/fans/order?id=${id}&page=${1}`,
         );
         setDataOrderPayment(response.data.data);
-        console.log(response.data.data);
+        setTotalOrder(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -93,6 +100,22 @@ export default function index() {
       style: 'currency',
       currency: 'IDR',
     }).format(value);
+  };
+
+  const handleNextPage = () => {
+    if (selectedType === 'order') {
+      setCurrentOrderPage(currentOrderPage + 1);
+    } else {
+      setCurrentPlanPage(currentPlanPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (selectedType === 'order') {
+      setCurrentOrderPage(Math.max(1, currentOrderPage - 1));
+    } else {
+      setCurrentPlanPage(Math.max(1, currentPlanPage - 1));
+    }
   };
 
   return (
@@ -396,8 +419,13 @@ export default function index() {
                 >
                   <ul className="flex h-8 items-center -space-x-px text-sm">
                     <li>
-                      <a
-                        href="#"
+                      <button
+                        onClick={handlePrevPage}
+                        disabled={
+                          selectedType === 'order'
+                            ? currentOrderPage === 1
+                            : currentPlanPage === 1
+                        }
                         className="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                       >
                         <span className="sr-only">Previous</span>
@@ -416,11 +444,16 @@ export default function index() {
                             d="m15 19-7-7 7-7"
                           />
                         </svg>
-                      </a>
+                      </button>
                     </li>
                     <li>
-                      <a
-                        href="#"
+                      <button
+                        onClick={handleNextPage}
+                        disabled={
+                          selectedType === 'order'
+                            ? currentOrderPage * 12 >= totalOrder
+                            : currentPlanPage * 12 >= totalPlan
+                        }
                         className="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                       >
                         <span className="sr-only">Next</span>
@@ -439,7 +472,7 @@ export default function index() {
                             d="m9 5 7 7-7 7"
                           />
                         </svg>
-                      </a>
+                      </button>
                     </li>
                   </ul>
                 </nav>

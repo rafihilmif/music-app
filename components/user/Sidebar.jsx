@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import axios from 'axios';
@@ -91,9 +92,9 @@ export default function Sidebar() {
         <div className="flex h-[10%] flex-col justify-around rounded bg-[#121212]">
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Home className="w-6" />
-            <a href="/artist" className="font-bold">
+            <Link href="/artist" className="font-bold">
               Home
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Search className="w-6" />
@@ -106,15 +107,15 @@ export default function Sidebar() {
         <div className="flex h-[10%] flex-col justify-around rounded bg-[#121212]">
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Home className="w-6" />
-            <a href="/fans/home" className="font-bold">
+            <Link href={'/fans'} className="font-bold">
               Home
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Search className="w-6" />
-            <a href="/search" className="font-bold">
+            <Link href={'/search'} className="font-bold">
               Search
-            </a>
+            </Link>
           </div>
         </div>
       ) : null}
@@ -122,9 +123,9 @@ export default function Sidebar() {
         <div className="flex h-[15%] flex-col justify-around gap-2 rounded bg-[#121212]">
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Receipt className="w-6" />
-            <a href="/artist/transaction" className="font-bold">
+            <Link href="/artist/transaction" className="font-bold">
               Transaction
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Summarize className="w-6" />
@@ -132,30 +133,30 @@ export default function Sidebar() {
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <FavoriteBorder className="w-6" />
-            <a href="/favorite/songs" className="font-bold">
+            <Link href="/favorite/songs" className="font-bold">
               Favorite Songs
-            </a>
+            </Link>
           </div>
         </div>
       ) : role === 'fans' ? (
         <div className="flex h-[15%] flex-col justify-around rounded bg-[#121212]">
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <ShoppingCart className="w-6" />
-            <a className="font-bold" href="/fans/cart">
+            <Link className="font-bold" href="/fans/cart">
               Cart
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <History className="w-6" />
-            <a href="/fans/history" className="font-bold">
+            <Link href="/fans/history" className="font-bold">
               History
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <FavoriteBorder className="w-6" />
-            <a href="/favorite/songs" className="font-bold">
+            <Link href="/favorite/songs" className="font-bold">
               Favorite Songs
-            </a>
+            </Link>
           </div>
         </div>
       ) : null}
@@ -164,27 +165,27 @@ export default function Sidebar() {
         <div className="flex h-[20%] flex-col justify-around rounded bg-[#121212]">
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <LibraryBooks className="w-6" />
-            <a href="/artist/collection/albums" className="font-bold">
+            <Link href="/artist/collection/albums" className="font-bold">
               Collection Album
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <AudioFile className="w-6" />
-            <a href="/artist/collection/song" className="font-bold">
+            <Link href="/artist/collection/song" className="font-bold">
               Collection Song
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <StoreMallDirectory className="w-6" />
-            <a href="/artist/collection/merchandise" className="font-bold">
+            <Link href="/artist/collection/merchandise" className="font-bold">
               Collection Merchandise
-            </a>
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <CalendarMonth className="w-6" />
-            <a href="/artist/collection/shows" className="font-bold">
+            <Link href="/artist/collection/shows" className="font-bold">
               Collection Shows
-            </a>
+            </Link>
           </div>
         </div>
       ) : null}
@@ -196,9 +197,9 @@ export default function Sidebar() {
           </div>
           <div className="flex items-center gap-3">
             <ArrowForward className="w-8 cursor-not-allowed transition-opacity duration-300 hover:opacity-50" />
-            <a href="/playlist/create">
+            <Link href="/playlist/create">
               <Add className="w-8 cursor-pointer hover:opacity-50" />
-            </a>
+            </Link>
           </div>
         </div>
         {dataPlaylist.length > 0 ? (
@@ -209,12 +210,12 @@ export default function Sidebar() {
                   key={item.id_playlist}
                   className="group relative flex w-full cursor-pointer items-center gap-3 rounded hover:bg-[#2f3135]"
                 >
-                  <a
+                  <Link
                     href={`/playlist/${item.id_playlist}`}
                     className="flex-1 text-white hover:underline"
                   >
                     {item.name}
-                  </a>
+                  </Link>
                   <div className="relative">
                     <button
                       onClick={() =>
@@ -230,12 +231,12 @@ export default function Sidebar() {
                     </button>
                     {hoveredIndex === item.id_playlist && (
                       <div className="absolute left-1 mt-1 w-32 rounded bg-[#2f3135] shadow-lg">
-                        <a
+                        <Link
                           href={`/playlist/update/${item.id_playlist}`}
                           className="block px-4 py-2 text-xs text-white hover:bg-gray-400"
                         >
                           Edit Details
-                        </a>
+                        </Link>
                         <button
                           onClick={() => handleDeletePlaylist(item.id_playlist)}
                           className="block w-full px-4 py-2 text-left text-xs text-red-500 hover:bg-gray-400"
@@ -260,12 +261,12 @@ export default function Sidebar() {
           <div className="m-2 flex flex-col items-start justify-start gap-1 rounded bg-[#242424] p-4 pl-4 font-semibold">
             <h1>Create your first playlist</h1>
             <p className="font-light">It's easy, we will help you</p>
-            <a
+            <Link
               href="/playlist/create"
               className="mt-4 rounded-full bg-white px-4 py-1.5 text-[15px] text-black hover:bg-gray-200"
             >
               Create Playlist
-            </a>
+            </Link>
           </div>
         )}
       </div>

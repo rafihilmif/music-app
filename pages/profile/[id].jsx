@@ -9,6 +9,7 @@ import { baseURLFile } from '@/baseURLFile';
 import Layout from '@/components/user/Layout';
 import { useSession } from 'next-auth/react';
 import usePlayerStore from '@/store/usePlayerStore';
+import Link from 'next/link';
 
 export default function index() {
   const router = useRouter();
@@ -378,16 +379,16 @@ export default function index() {
         <div className="mb-4 mt-10 ">
           <div className="mt-4 flex items-center justify-between">
             <h1 className="my-5 text-xl font-bold">Discography</h1>
-            <a
+            <Link
               href={`/profile/album/${id}`}
               className="my-5 cursor-pointer text-sm text-gray-400 hover:text-gray-200"
             >
               Show All
-            </a>
+            </Link>
           </div>
           <div className="flex overflow-auto">
             {dataAlbum.map((item, i) => (
-              <a key={i} href={`/album/${item.id_album}`}>
+              <Link key={i} href={`/album/${item.id_album}`}>
                 <div className="min-w-[220px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
                   <img
                     className="rounded"
@@ -401,7 +402,7 @@ export default function index() {
                     {item.created_at?.slice(0, 4)} · Album
                   </p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -409,7 +410,7 @@ export default function index() {
         <div className="mt-10 flex flex-col">
           <h1 className="text-xl font-bold">Song</h1>
           {dataSong.map((item, index) => (
-            <a key={index}>
+            <div key={index}>
               <div
                 onClick={() => handlePlaySong(item, index)}
                 onMouseEnter={() => onHover(index)}
@@ -439,30 +440,30 @@ export default function index() {
 
                 <p>{durations[index]}</p>
               </div>
-            </a>
+            </div>
           ))}
         </div>
         <h4 className="mt-2">
-          <a
+          <Link
             className="cursor-pointer text-sm text-gray-400 hover:text-gray-200"
             href={`/profile/song/${id}`}
           >
             See more
-          </a>
+          </Link>
         </h4>
         <div className="mb-4 mt-10 ">
           <div className="mt-4 flex items-center justify-between">
             <h1 className="my-5 text-xl font-bold">Merchandise</h1>
-            <a
+            <Link
               href={`/profile/merchandise/${id}`}
               className="my-5 cursor-pointer text-sm text-gray-400 hover:text-gray-200"
             >
               Show All
-            </a>
+            </Link>
           </div>
           <div className="flex overflow-auto">
             {dataMerchandise.map((item, i) => (
-              <a href={`/detail/merchandise/${item.id_merchandise}`} key={i}>
+              <Link href={`/detail/merchandise/${item.id_merchandise}`} key={i}>
                 <div className="flex min-w-[180px] cursor-pointer flex-col rounded p-2 px-2 hover:bg-gray-700">
                   {item.images && item.images.length > 0 && (
                     <img
@@ -476,23 +477,23 @@ export default function index() {
                   <p className="mb-1 mt-2 font-bold">{item.name}</p>
                   <p className="text-sm text-slate-200">{item.artist}</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
         <div className="mb-4 mt-10 ">
           <div className="mt-4 flex items-center justify-between">
             <h1 className="my-5 text-xl font-bold">Show</h1>
-            <a
+            <Link
               href={`/profile/show/${id}`}
               className="my-5 cursor-pointer text-sm text-gray-400 hover:text-gray-200"
             >
               Show All
-            </a>
+            </Link>
           </div>
           <div className="flex overflow-auto">
             {dataShow.map((item, i) => (
-              <a href={`/detail/show/${item.id_show}`} key={i}>
+              <Link href={`/detail/show/${item.id_show}`} key={i}>
                 <div className="min-w-[220px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
                   <img
                     className="rounded"
@@ -504,7 +505,7 @@ export default function index() {
                   <p className="mb-1 mt-2 font-bold">{item.name}</p>
                   <p className="text-sm text-slate-200">{item.duedate}</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -512,7 +513,7 @@ export default function index() {
           <h1 className="my-5 text-xl font-bold">Playlist</h1>
           <div className="flex overflow-auto">
             {dataPlaylist.map((item, i) => (
-              <a href={`/playlist/${item.id_playlist}`} key={i}>
+              <Link href={`/playlist/${item.id_playlist}`} key={i}>
                 <div className="min-w-[220px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
                   <img
                     className="rounded"
@@ -524,7 +525,7 @@ export default function index() {
                   <p className="mb-1 mt-2 font-bold">{item.name}</p>
                   <p className="text-sm text-slate-200">{item.duedate}</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>

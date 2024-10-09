@@ -7,6 +7,7 @@ import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Player from '@/components/user/Player';
+import Link from 'next/link';
 
 export default function MainLayoutFans() {
   const router = useRouter();
@@ -134,7 +135,13 @@ export default function MainLayoutFans() {
     <>
       <Navbar />
       <div className="p-4 text-white md:p-6">
-        <div className="mb-6 flex space-x-4 overflow-x-auto">
+        <h2 className="mb-4 flex items-center justify-between text-2xl font-bold">
+          Artist You've been followed
+          {/* <button className="flex items-center text-sm text-gray-400">
+              Show all
+            </button> */}
+        </h2>
+        {/* <div className="mb-6 flex space-x-4 overflow-x-auto">
           <button className="whitespace-nowrap rounded-full bg-[#181818] px-4 py-2">
             All
           </button>
@@ -146,11 +153,11 @@ export default function MainLayoutFans() {
             <LocalMall className="mr-2 h-4 w-4" />
             Merchandise
           </button>
-        </div>
+        </div> */}
 
         <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
           {dataArtistFollowed.map((item) => (
-            <a
+            <Link
               href={`/profile/${item.id_artist}`}
               className="flex cursor-pointer items-center rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
             >
@@ -159,7 +166,7 @@ export default function MainLayoutFans() {
                 className="mr-4 h-12 w-12"
               />
               <span className="flex-grow truncate">{item.name}</span>
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -172,7 +179,7 @@ export default function MainLayoutFans() {
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 ">
             {dataRandomPlaylist.map((item) => (
-              <a
+              <Link
                 href={`/playlist/${item.id_playlist}`}
                 className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
               >
@@ -182,7 +189,7 @@ export default function MainLayoutFans() {
                 />
                 <h3 className="mb-2 truncate font-bold">{item.name}</h3>
                 <p className="line-clamp-2 text-sm text-gray-400">playlist</p>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -191,7 +198,7 @@ export default function MainLayoutFans() {
           <h1 className="my-2 text-2xl font-bold">Artists</h1>
           <div className="flex flex-wrap gap-6 overflow-auto">
             {dataRandomArtist.map((item, i) => (
-              <a key={i} href={`/profile/${item.id_artist}`}>
+              <Link key={i} href={`/profile/${item.id_artist}`}>
                 <div className="min-w-[140px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
                   <img
                     className="h-36 w-36 rounded-full object-cover"
@@ -200,7 +207,7 @@ export default function MainLayoutFans() {
                   <p className="mb-1 mt-2 font-bold">{item.name}</p>
                   <p className="text-sm text-slate-200">Artist</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -213,7 +220,7 @@ export default function MainLayoutFans() {
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {dataPlaylist.map((item) => (
-              <a href={`/playlist/${item.id_playlist}`}>
+              <Link href={`/playlist/${item.id_playlist}`}>
                 <div
                   key={item.id_playlist}
                   className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
@@ -225,7 +232,7 @@ export default function MainLayoutFans() {
                   <h3 className="mb-2 truncate font-bold">{item.name}</h3>
                   <p className="line-clamp-2 text-sm text-gray-400">playlist</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -235,7 +242,7 @@ export default function MainLayoutFans() {
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {dataRandomMerchandise.map((item) => (
-              <a href={`/detail/merchandise/${item.id_merchandise}`}>
+              <Link href={`/detail/merchandise/${item.id_merchandise}`}>
                 <div
                   key={item.id_merchandise}
                   className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
@@ -247,7 +254,7 @@ export default function MainLayoutFans() {
                   <h3 className="mb-2 truncate font-bold">{item.name}</h3>
                   <p className="text-sm text-slate-200">{item.Artist.name}</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>

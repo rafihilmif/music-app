@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import Player from '@/components/user/Player';
 import Sidebar from '@/components/user/Sidebar';
 import Layout from '@/components/user/Layout';
-
+import { BrowserRouter } from 'react-router-dom';
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 

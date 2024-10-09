@@ -32,7 +32,7 @@ export default function index({ children }) {
     } else if (status === 'authenticated' && session.user.role === 'artist') {
       router.push('/artist');
     } else if (status === 'authenticated' && session.user.role === 'fans') {
-      router.push('/fans/home');
+      router.push('/fans');
     }
   }, [status]);
 

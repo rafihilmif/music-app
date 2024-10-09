@@ -5,6 +5,8 @@ import {
   Search,
   ShoppingBag,
   Inventory2Outlined,
+  ArrowBackIosNewRounded,
+  ArrowForwardIosRounded,
 } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
@@ -13,6 +15,7 @@ import axios from 'axios';
 import { signOut, useSession } from 'next-auth/react';
 import debounce from 'lodash.debounce';
 import { redirect } from 'next/dist/server/api-utils';
+import Link from 'next/link';
 
 export default function Navbar() {
   const router = useRouter();
@@ -160,40 +163,40 @@ export default function Navbar() {
             />
           </div>
         ) : (
-          <div className="flex items-center gap-2"></div>
+          <div className="ml-6 flex items-center gap-2"></div>
         )}
 
         <div className="flex items-center gap-4">
           {path === '/artist/collection/albums' ||
           path === '/artist/collection/albums/new' ||
           path === '/artist/collection/albums/old' ? (
-            <a
+            <Link
               href="/artist/add/album"
               className="hidden cursor-pointer rounded-2xl bg-green-400 px-4 py-1 text-[15px] text-black md:block"
             >
               Add an Album
-            </a>
+            </Link>
           ) : path === '/artist/collection/song' ? (
-            <a
+            <Link
               href="/artist/add/track"
               className="hidden cursor-pointer rounded-2xl bg-green-400 px-4 py-1 text-[15px] text-black md:block"
             >
               Add an Tracks
-            </a>
+            </Link>
           ) : path === '/artist/collection/merchandise' ? (
-            <a
+            <Link
               href="/artist/add/merchandise"
               className="hidden cursor-pointer rounded-2xl bg-green-400 px-4 py-1 text-[15px] text-black md:block"
             >
               Add an Merchandise
-            </a>
+            </Link>
           ) : path === '/artist/collection/shows' ? (
-            <a
+            <Link
               href="/artist/add/show"
               className="hidden cursor-pointer rounded-2xl bg-green-400 px-4 py-1 text-[15px] text-black md:block"
             >
               Add an Shows
-            </a>
+            </Link>
           ) : null}
           {role === 'fans' ? (
             <div className="relative">
@@ -333,16 +336,16 @@ export default function Navbar() {
             <div className="absolute right-0 mt-36 w-48 rounded-md bg-[#202020] py-2 shadow-lg">
               {role === 'fans' ? (
                 <div className="block cursor-pointer px-4 py-2 text-white hover:bg-gray-500">
-                  <a href="/fans/account">Account</a>
+                  <Link href="/fans/account">Account</Link>
                 </div>
               ) : (
                 <div className="block cursor-pointer px-4 py-2 text-white hover:bg-gray-500">
-                  <a href="/artist/account">Account</a>
+                  <Link href="/artist/account">Account</Link>
                 </div>
               )}
               {role === 'fans' && (
                 <div className="block cursor-pointer px-4 py-2 text-white hover:bg-gray-500">
-                  <a href="/fans/subscribe">Subscribe</a>
+                  <Link href="/fans/subscribe">Subscribe</Link>
                 </div>
               )}
 

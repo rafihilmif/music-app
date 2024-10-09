@@ -210,24 +210,28 @@ export default function detailMerchById() {
                   {image.map((item, i) => (
                     <div key={i} className="flex w-full flex-col">
                       <button
-                        className="mb-3 block opacity-50 hover:opacity-100 sm:mb-6"
+                        className="mb-3 block w-full sm:mb-6"
                         onClick={() => setMainImage(item.name)}
                       >
-                        <img
-                          className="block h-14 w-full rounded-xl sm:h-20 md:h-28"
-                          alt=""
-                          src={`${baseURLFile}/assets/image/merchandise/${item.name}`}
-                        />
+                        <div className="h-36 w-36 overflow-hidden rounded-xl">
+                          <img
+                            className="h-full w-full object-cover opacity-50 transition-opacity duration-300 hover:opacity-100"
+                            alt="Merchandise thumbnail"
+                            src={`${baseURLFile}/assets/image/merchandise/${item.name}`}
+                          />
+                        </div>
                       </button>
                     </div>
                   ))}
                 </div>
                 <div className="w-auto px-3">
-                  <img
-                    className="block h-full w-full rounded-xl"
-                    src={`${baseURLFile}/assets/image/merchandise/${mainImage}`}
-                    alt=""
-                  />
+                  <div className="h-96 w-96 overflow-hidden rounded-xl">
+                    <img
+                      className="h-full w-full object-cover"
+                      src={`${baseURLFile}/assets/image/merchandise/${mainImage}`}
+                      alt="Merchandise item"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

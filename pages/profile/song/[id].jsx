@@ -5,10 +5,11 @@ import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Navbar from '@/components/user/Navbar';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import usePlayerStore from '@/store/usePlayerStore';
 
 export default function collectionSongByArtist() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { id } = router.query;
 
@@ -17,6 +18,9 @@ export default function collectionSongByArtist() {
   const [totalSong, setTotalSong] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [idFans, setIdFans] = useState(null);
+  const [planStatus, setPlanStatus] = useState(null);
 
   const observer = useRef();
 
@@ -28,6 +32,40 @@ export default function collectionSongByArtist() {
     playStatus,
     setPlayStatus,
   } = usePlayerStore();
+
+  useEffect(() => {
+    const fetchDataFansCheck = async () => {
+      try {
+        if (status === 'authenticated' && session.user.role === 'fans') {
+          const response = await axios.get(
+            `${baseURL}/detail/fans?email=${session.user.email}`,
+          );
+          setIdFans(response.data.id_fans);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchDataFansCheck();
+  }, [status, session]);
+
+  useEffect(() => {
+    const fetchDataPlan = async () => {
+      if (status === 'authenticated' && session.user.role === 'fans') {
+        try {
+          const response = await axios.get(
+            `${baseURL}/fans/plan/detail?id=${idFans}`,
+          );
+          setPlanStatus(response.data.type);
+        } catch (error) {
+          console.log("You're not fans");
+        }
+      }
+    };
+    if (idFans) {
+      fetchDataPlan();
+    }
+  }, [status, session, idFans]);
 
   const fetchData = useCallback(
     async (page) => {
@@ -213,7 +251,11 @@ export default function collectionSongByArtist() {
               {data.map((item, index) => (
                 <div
                   key={index}
-                  className="group relative flex min-w-[180px] cursor-pointer flex-col rounded p-2 hover:bg-gray-700"
+                  className={`group relative flex min-w-[180px] flex-col rounded p-2 ${
+                    planStatus === 'free'
+                      ? 'cursor-not-allowed'
+                      : 'cursor-pointer hover:bg-gray-700'
+                  }`}
                 >
                   <div className="relative">
                     <img
@@ -223,10 +265,16 @@ export default function collectionSongByArtist() {
                       src={`${baseURLFile}/assets/image/song/${item.image}`}
                       alt={item.name}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                    <div
+                      className={`absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 ${planStatus === 'free' ? 'pointer-events-none' : ''}`}
+                    >
                       <div className="rounded-full bg-green-500 p-4">
                         <PlayArrowOutlined
-                          onClick={() => handlePlaySong(item, index)}
+                          onClick={
+                            planStatus !== 'free'
+                              ? () => handlePlaySong(item, index)
+                              : null
+                          }
                           className="h-6 w-6 text-white"
                           fill="white"
                         />

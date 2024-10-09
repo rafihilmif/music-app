@@ -5,10 +5,11 @@ import { Schedule, PlayArrow } from '@mui/icons-material';
 import axios from 'axios';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import usePlayerStore from '@/store/usePlayerStore';
 
 export default function index() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { id } = router.query;
   const [dataAlbum, setDataAlbum] = useState([]);
@@ -20,6 +21,9 @@ export default function index() {
   const [durations, setDurations] = useState({});
   const [totalSongs, setTotalSongs] = useState();
 
+  const [idFans, setIdFans] = useState(null);
+  const [planStatus, setPlanStatus] = useState(null);
+
   const audioRef = useRef(null);
   const {
     setSongs,
@@ -28,6 +32,40 @@ export default function index() {
     playStatus,
     setPlayStatus,
   } = usePlayerStore();
+
+  useEffect(() => {
+    const fetchDataFansCheck = async () => {
+      try {
+        if (status === 'authenticated' && session.user.role === 'fans') {
+          const response = await axios.get(
+            `${baseURL}/detail/fans?email=${session.user.email}`,
+          );
+          setIdFans(response.data.id_fans);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchDataFansCheck();
+  }, [status, session]);
+
+  useEffect(() => {
+    const fetchDataPlan = async () => {
+      if (status === 'authenticated' && session.user.role === 'fans') {
+        try {
+          const response = await axios.get(
+            `${baseURL}/fans/plan/detail?id=${idFans}`,
+          );
+          setPlanStatus(response.data.type);
+        } catch (error) {
+          console.log("You're not fans");
+        }
+      }
+    };
+    if (idFans) {
+      fetchDataPlan();
+    }
+  }, [status, session, idFans]);
 
   const handlePlaySong = async (song, index) => {
     if (!song) return;
@@ -158,30 +196,46 @@ export default function index() {
         </p>
         <Schedule className="mr-2 w-4 justify-self-end" />
       </div>
-
       <hr />
       {dataSong.map((item, index) => (
         <div
           key={index}
-          onClick={() => handlePlaySong(item, index)}
-          onMouseEnter={() => onHover(index)}
-          onMouseLeave={() => onHoverLeave(index)}
-          className="grid cursor-pointer grid-cols-2 items-center gap-2 p-2 text-[#a7a7a7] hover:bg-[#ffffff2b] sm:grid-cols-2"
+          onClick={
+            planStatus !== 'free' ? () => handlePlaySong(item, index) : null
+          }
+          onMouseEnter={planStatus !== 'free' ? () => onHover(index) : null}
+          onMouseLeave={
+            planStatus !== 'free' ? () => onHoverLeave(index) : null
+          }
+          className={`grid items-center gap-2 p-2 text-[#a7a7a7] sm:grid-cols-2 ${
+            planStatus === 'free'
+              ? 'cursor-not-allowed'
+              : 'cursor-pointer hover:bg-[#ffffff2b]'
+          }`}
         >
           <div className="flex items-center text-white">
-            <button className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300">
+            <button
+              className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300"
+              onClick={planStatus !== 'free' ? () => toggleSong() : null}
+              disabled={planStatus === 'free'}
+            >
               <span
-                className={`absolute font-medium transition-opacity duration-300 ${hoverIndex[index] ? 'opacity-0' : 'opacity-100'}`}
+                className={`absolute font-medium transition-opacity duration-300 ${
+                  hoverIndex[index] ? 'opacity-0' : 'opacity-100'
+                }`}
               >
                 {index + 1}
               </span>
               <PlayArrow
-                className={`absolute transition-opacity duration-300 ${hoverIndex[index] ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute transition-opacity duration-300 ${
+                  hoverIndex[index] ? 'opacity-100' : 'opacity-0'
+                }`}
               />
             </button>
             <img
               className="mr-5 inline w-10 rounded-sm"
               src={`${baseURLFile}/assets/image/song/${item.image}`}
+              alt={item.name}
             />
             <b>{item.name}</b>
           </div>

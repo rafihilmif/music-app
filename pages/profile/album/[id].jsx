@@ -14,6 +14,9 @@ export default function collectionAlbumByArtist() {
   const [totalAlbum, setTotalAlbum] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [idFans, setIdFans] = useState(null);
+  const [planStatus, setPlanStatus] = useState(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const observer = useRef();
 

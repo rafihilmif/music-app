@@ -129,7 +129,9 @@ export default function Sidebar() {
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Summarize className="w-6" />
-            <p className="font-bold">Report</p>
+            <Link href="/artist/report" className="font-bold">
+              Report
+            </Link>
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <FavoriteBorder className="w-6" />

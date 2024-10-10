@@ -7,6 +7,7 @@ import Navbar from '@/components/user/Navbar';
 import { getSession } from 'next-auth/react';
 
 export default function collectionAlbumByArtist() {
+  
   const router = useRouter();
   const { id } = router.query;
 
@@ -19,6 +20,8 @@ export default function collectionAlbumByArtist() {
 
   const [isLoading, setIsLoading] = useState(true);
   const observer = useRef();
+
+
 
   const fetchData = useCallback(
     async (page) => {

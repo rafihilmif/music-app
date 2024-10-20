@@ -17,6 +17,9 @@ export default function index() {
   const [discoverArtist, setDiscoverArtist] = useState([]);
   const [dataRandomPlaylist, setDataRandomPlaylist] = useState([]);
   const [dataRandomMerchandise, setDataRandomMerchandise] = useState([]);
+  const [dataRandomAlbum, setDataRandomAlbum] = useState([]);
+
+  const [dataPlaylist, setDataPlaylist] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -69,6 +72,22 @@ export default function index() {
   }, [id]);
 
   useEffect(() => {
+    const fetchDataAlbum = async () => {
+      try {
+        const response = await axios.get(
+          `${baseURL}/discover/artist/album?id=${id}`,
+        );
+        setDataRandomAlbum(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    if (id) {
+      fetchDataAlbum();
+    }
+  }, [id]);
+
+  useEffect(() => {
     const fetchDataRandomMerch = async () => {
       try {
         const response = await axios.get(
@@ -90,6 +109,20 @@ export default function index() {
       }
     };
     fetchDataRandomMerch();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchDataPlaylist = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/user/playlist?id=${id}`);
+        setDataPlaylist(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    if (id) {
+      fetchDataPlaylist();
+    }
   }, [id]);
 
   const fetchImageData = async (id_merch) => {
@@ -148,14 +181,14 @@ export default function index() {
         </div>
       </div>
       <div className="mb-4 px-2">
-        <h1 className="my-5 text-2xl font-bold">Another merchandise</h1>
+        <h1 className="my-5 text-2xl font-bold">Discover a merchandise</h1>
         <div className="flex flex-wrap gap-6 overflow-auto">
           <div className="mb-8">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 ">
-              {dataRandomMerchandise.map((item) => (
+              {dataRandomMerchandise.map((item, i) => (
                 <Link href={`/detail/merchandise/${item.id_merchandise}`}>
                   <div
-                    key={item.id_merchandise}
+                    key={i}
                     className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
                   >
                     <img
@@ -172,12 +205,54 @@ export default function index() {
         </div>
       </div>
       <div className="mb-4 px-2">
-        <h1 className="my-5 text-2xl font-bold">Your Album</h1>
-        <div className="flex flex-wrap gap-6 overflow-auto"></div>
+        <h1 className="my-5 text-2xl font-bold">Album from another artist</h1>
+        <div className="flex flex-wrap gap-6 overflow-auto">
+          <div className="mb-8">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 ">
+              {dataRandomAlbum.map((item, i) => (
+                <Link href={`/album/${item.id_album}`}>
+                  <div
+                    key={i}
+                    className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
+                  >
+                    <img
+                      src={`${baseURLFile}/assets/image/album/${item.image}`}
+                      className="mb-4 aspect-square w-full rounded object-cover"
+                    />
+                    <h3 className="mb-2 truncate font-bold">{item.name}</h3>
+                    <p className="text-sm text-slate-200">{item.Artist.name}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
       <div className="mb-4 px-2">
         <h1 className="my-5 text-2xl font-bold">Your Playlist</h1>
-        <div className="flex flex-wrap gap-6 overflow-auto"></div>
+        <div className="flex flex-wrap gap-6 overflow-auto">
+          <div className="mb-8">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {dataPlaylist.map((item) => (
+                <Link href={`/playlist/${item.id_playlist}`}>
+                  <div
+                    key={item.id_playlist}
+                    className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
+                  >
+                    <img
+                      src={`${baseURLFile}/assets/image/playlist/${item.image}`}
+                      className="mb-4 aspect-square w-full rounded object-cover"
+                    />
+                    <h3 className="mb-2 truncate font-bold">{item.name}</h3>
+                    <p className="line-clamp-2 text-sm text-gray-400">
+                      playlist
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

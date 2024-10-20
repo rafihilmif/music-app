@@ -98,9 +98,9 @@ export default function Sidebar() {
           </div>
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Search className="w-6" />
-            <a href="/search" className="font-bold">
+            <Link href="/search" className="font-bold">
               Search
-            </a>
+            </Link>
           </div>
         </div>
       ) : role === 'fans' ? (

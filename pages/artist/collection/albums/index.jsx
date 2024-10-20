@@ -6,6 +6,7 @@ import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Navbar from '@/components/user/Navbar';
 import { getSession, useSession } from 'next-auth/react';
+import Swal from 'sweetalert2';
 export default function index() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -138,6 +139,40 @@ export default function index() {
     [id],
   );
 
+  const handleDeleteAlbum = async (idAlbum) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+      });
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${baseURL}/artist/album/delete?id=${idAlbum}`,
+        );
+        await Swal.fire({
+          title: 'Deleted!',
+          text: response.data.message,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+        });
+      }
+      window.location.reload();
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while deleting the album',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
+    }
+  };
   return (
     <>
       <Navbar />
@@ -185,13 +220,17 @@ export default function index() {
                     <p className="text-sm text-slate-200">{item.artist}</p>
                     {hoveredIndex === i && (
                       <div className="absolute right-3 top-3 flex space-x-2">
-                        <a
-                          key={i}
-                          href={`/artist/update/album/${item.id_album}`}
-                        >
+                        <a href={`/artist/update/album/${item.id_album}`}>
                           <Edit className="rounded-full text-emerald-500 hover:border-emerald-400 hover:text-emerald-600" />
                         </a>
-                        <Delete className="text-red-500 hover:border-red-400 hover:text-red-700" />
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteAlbum(item.id_album);
+                          }}
+                        >
+                          <Delete className="text-red-500 hover:border-red-400 hover:text-red-700" />
+                        </button>
                       </div>
                     )}
                   </div>

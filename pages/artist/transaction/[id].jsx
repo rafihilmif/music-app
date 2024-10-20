@@ -139,7 +139,7 @@ export default function orderById() {
               ))}
             </div>
 
-            <div className="space-y-2 text-right">
+            {/* <div className="space-y-2 text-right">
               <div className="flex justify-between">
                 <p className="text-gray-600">Total</p>
                 <p className="font-semibold text-black">
@@ -154,12 +154,12 @@ export default function orderById() {
                   {formatCurrency(tax)}
                 </p>
               </div>
-            </div>
+            </div> */}
             <div className="space-y-2 text-right">
               <div className="flex justify-between">
                 <p className="text-gray-600">You've getting</p>
                 <p className="font-semibold text-black">
-                  {formatCurrency(transactionTotal - tax)}
+                  {formatCurrency(transactionTotal)}
                 </p>
               </div>
             </div>

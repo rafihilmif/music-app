@@ -15,6 +15,7 @@ export default function index() {
   const router = useRouter();
   const { id } = router.query;
   const { data: session, status } = useSession();
+  
   const [userHasLogin, setUserHasLogin] = useState('');
   const [idUserHasLogin, setIdUserHasLogin] = useState('');
   const [isFollowed, setIsFollowed] = useState(false);

@@ -6,6 +6,7 @@ import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Navbar from '@/components/user/Navbar';
 import { getSession, useSession } from 'next-auth/react';
+import Swal from 'sweetalert2';
 export default function index() {
   const { data: session, status } = useSession();
   const [dataSong, setDataSong] = useState([]);
@@ -138,6 +139,41 @@ export default function index() {
     [id],
   );
 
+  const handleDeleteSong = async (idSong) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+      });
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${baseURL}/artist/song/delete?id=${idSong}`,
+        );
+        await Swal.fire({
+          title: 'Deleted!',
+          text: response.data.message,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+        });
+      }
+      window.location.reload();
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while deleting the song',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -192,15 +228,18 @@ export default function index() {
                         >
                           <Edit className="rounded-full text-emerald-500 hover:border-emerald-400 hover:text-emerald-600" />
                         </a>
-
-                        <Delete className="text-red-500 hover:border-red-400 hover:text-red-700" />
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteSong(item.id_song);
+                          }}
+                        >
+                          <Delete className="text-red-500 hover:border-red-400 hover:text-red-700" />
+                        </button>
                       </div>
                     </div>
                   )}
                 </div>
-                // <a href={`/artist/detail/show/${item.id_song}`} key={i}>
-
-                // </a>
               ))}
             </div>
             <div

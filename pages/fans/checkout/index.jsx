@@ -171,7 +171,7 @@ export default function index() {
   }, [courier, codeCities, totalQty]);
 
   const subtotal = calculateSubtotal();
-  const tax = subtotal * 0.05;
+  const tax = subtotal * 0.15;
   const total = subtotal + parseInt(costShipping) + tax;
 
   useEffect(() => {

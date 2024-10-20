@@ -129,6 +129,7 @@ export default function index() {
     image.forEach((image) => {
       formData.append('image', image);
     });
+
     try {
       const response = await axios.post(
         `${baseURL}/artist/merchandise/add?id=${id}`,
@@ -143,8 +144,6 @@ export default function index() {
           confirmButtonColor: '#3085d6',
         }).then(() => {
           window.location.reload();
-          // console.log(response.data.message);
-          // console.log(response.data.data);
         });
       }
     } catch (error) {
@@ -159,6 +158,7 @@ export default function index() {
       }
     }
   };
+  
   return (
     <>
       <Navbar />

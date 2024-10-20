@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import { getSession, useSession } from 'next-auth/react';
+import Swal from 'sweetalert2';
 
 export default function () {
   const { data: session, status } = useSession();
@@ -117,6 +118,41 @@ export default function () {
   );
 
   const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const handleDeleteShow = async (idShow) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+      });
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${baseURL}/artist/show/delete?id=${idShow}`,
+        );
+        await Swal.fire({
+          title: 'Deleted!',
+          text: response.data.message,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+        });
+      }
+      window.location.reload();
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while deleting the show',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
+    }
+  };
   return (
     <>
       <Navbar />
@@ -162,7 +198,14 @@ export default function () {
                           <Edit className="rounded-full text-emerald-500 hover:border-emerald-400 hover:text-emerald-600" />
                         </a>
 
-                        <Delete className="text-red-500 hover:border-red-400 hover:text-red-700" />
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteShow(item.id_show);
+                          }}
+                        >
+                          <Delete className="text-red-500 hover:border-red-400 hover:text-red-700" />
+                        </button>
                       </div>
                     )}
                   </div>

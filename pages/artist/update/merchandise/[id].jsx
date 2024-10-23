@@ -19,11 +19,11 @@ export default function index() {
   const [OldDesc, setOldDesc] = useState('');
   const [OldImage, setOldImage] = useState([]);
   const [OldCategory, setOldCategory] = useState('');
-  const [OldSizeS, setOldSizeS] = useState(0);
-  const [OldSizeM, setOldSizeM] = useState(0);
-  const [OldSizeL, setOldSizeL] = useState(0);
-  const [OldSizeXL, setOldSizeXL] = useState(0);
-  const [OldPrice, setOldPrice] = useState(0);
+  const [OldSizeS, setOldSizeS] = useState();
+  const [OldSizeM, setOldSizeM] = useState();
+  const [OldSizeL, setOldSizeL] = useState();
+  const [OldSizeXL, setOldSizeXL] = useState();
+  const [OldPrice, setOldPrice] = useState();
   const [OldStock, setOldStock] = useState();
 
   const [formData, setFormData] = useState({});

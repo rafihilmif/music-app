@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
+import Swal from 'sweetalert2';
 export default function create() {
   const { data: session, status } = useSession();
 
@@ -55,20 +56,30 @@ export default function create() {
     formData.append('name', name);
 
     try {
-      await axios
-        .post(`${baseURL}/playlist/add?id=${id}`, formData)
-        .then(alert('berhasil menambahkan playlist'), router.reload());
-    } catch (error) {
-      if (error.response) {
-        alert(
-          'Terjadi kesalahan saat mengunggah file: ' +
-            error.response.data.message,
-        );
-      } else if (error.request) {
-        alert('Terjadi kesalahan saat mengirim permintaan ke server.');
-      } else {
-        alert('Terjadi kesalahan: ' + error.message);
+      const response = await axios.post(
+        `${baseURL}/playlist/add?id=${id}`,
+        formData,
+      );
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
       }
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while add the playlist',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
     }
   };
 

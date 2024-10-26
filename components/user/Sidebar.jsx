@@ -23,6 +23,7 @@ import {
   MoreHoriz,
   HearingRounded,
 } from '@mui/icons-material';
+import Swal from 'sweetalert2';
 
 export default function Sidebar() {
   const { data: session, status } = useSession();
@@ -78,14 +79,38 @@ export default function Sidebar() {
 
   const handleDeletePlaylist = async (idPlaylist) => {
     try {
-      await axios
-        .delete(`${baseURL}/user/playlist?id=${idPlaylist}`)
-        .then(alert('Successfully playlist'), router.reload());
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+      });
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${baseURL}/user/playlist?id=${idPlaylist}`,
+        );
+        await Swal.fire({
+          title: 'Deleted!',
+          text: response.data.message,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+        });
+      }
+      window.location.reload();
     } catch (error) {
-      alert('Error: ' + error.message);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while deleting the playlist',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
     }
   };
-
   return (
     <div className="hidden h-full w-[25%] flex-col gap-2 p-2 text-white lg:flex">
       {role === 'artist' ? (
@@ -120,7 +145,7 @@ export default function Sidebar() {
         </div>
       ) : null}
       {role === 'artist' ? (
-        <div className="flex h-[15%] flex-col justify-around gap-2 rounded bg-[#121212]">
+        <div className="flex h-[10%] flex-col justify-around gap-2 rounded bg-[#121212]">
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <Receipt className="w-6" />
             <Link href="/artist/transaction" className="font-bold">
@@ -133,15 +158,15 @@ export default function Sidebar() {
               Report
             </Link>
           </div>
-          <div className="flex cursor-pointer items-center gap-3 pl-4">
+          {/* <div className="flex cursor-pointer items-center gap-3 pl-4">
             <FavoriteBorder className="w-6" />
             <Link href="/favorite/songs" className="font-bold">
               Favorite Songs
             </Link>
-          </div>
+          </div> */}
         </div>
       ) : role === 'fans' ? (
-        <div className="flex h-[15%] flex-col justify-around rounded bg-[#121212]">
+        <div className="flex h-[10%] flex-col justify-around rounded bg-[#121212]">
           <div className="flex cursor-pointer items-center gap-3 pl-4">
             <ShoppingCart className="w-6" />
             <Link className="font-bold" href="/fans/cart">
@@ -154,12 +179,12 @@ export default function Sidebar() {
               History
             </Link>
           </div>
-          <div className="flex cursor-pointer items-center gap-3 pl-4">
+          {/* <div className="flex cursor-pointer items-center gap-3 pl-4">
             <FavoriteBorder className="w-6" />
             <Link href="/favorite/songs" className="font-bold">
               Favorite Songs
             </Link>
-          </div>
+          </div> */}
         </div>
       ) : null}
 
@@ -191,7 +216,7 @@ export default function Sidebar() {
           </div>
         </div>
       ) : null}
-      <div className="h-[75%] rounded bg-[#121212]">
+      <div className="h-[80%] rounded bg-[#121212]">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <QueueMusic className="w-8 cursor-not-allowed transition-opacity duration-300 hover:opacity-50" />

@@ -92,10 +92,6 @@ export default function index() {
     setImage(newImages);
   };
 
-  useEffect(() => {
-    console.log(artist);
-  }, [artist]);
-
   const handleUploadMerchandise = async () => {
     const formData = new FormData();
     formData.append('name', name);

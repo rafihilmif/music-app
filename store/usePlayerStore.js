@@ -85,7 +85,6 @@ const usePlayerStore = create(
       },
 
       formatSongData: (song) => {
-        // Check if it's a playlist song
         if (song.Song) {
           return {
             id: song.Song.id_song,
@@ -94,9 +93,7 @@ const usePlayerStore = create(
             image: song.Song.image,
             audio: song.Song.audio,
           };
-        }
-        // Regular song
-        else {
+        } else {
           return {
             id: song.id_song,
             name: song.name,

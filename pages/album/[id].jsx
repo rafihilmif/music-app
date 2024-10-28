@@ -172,9 +172,11 @@ export default function index() {
       <Navbar />
       <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-end">
         <img
-          className="w-72 rounded"
+          className="aspect-square w-72 rounded object-cover"
           src={`${baseURLFile}/assets/image/album/${thumbnail}`}
-          alt=""
+          width={288}
+          height={288}
+          alt={`${nameAlbum} album cover`}
         />
         <div className="flex flex-col">
           <p>Album</p>

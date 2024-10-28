@@ -11,14 +11,10 @@ export default function index() {
   const { name } = router.query;
 
   const [dataAlbumRecom, setDataAlbumRecom] = useState([]);
-  const [dataAlbumNew, setDataAlbumNew] = useState([]);
-  const [dataAlbumOld, setDataAlbumOld] = useState([]);
+  const [dataArtistGenre, setDataArtistGenre] = useState([]);
+  const [dataMerchandiseGenre, setDataMerchandiseGenre] = useState([]);
 
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    console.log(name);
-  }, [name]);
 
   useEffect(() => {
     const fetchDataRecom = async () => {
@@ -37,13 +33,13 @@ export default function index() {
   }, [name]);
 
   useEffect(() => {
-    const fetchDataOldFormed = async () => {
+    const fetchDataArtistGenre = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/album/genre/old?name=${name}`,
+          `${baseURL}/genre/artist?name=${name}`,
         );
 
-        setDataAlbumOld(response.data);
+        setDataArtistGenre(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -51,17 +47,25 @@ export default function index() {
       }
     };
     if (name) {
-      fetchDataOldFormed();
+      fetchDataArtistGenre();
     }
   }, [name]);
 
   useEffect(() => {
-    const fetchDataNewRelease = async () => {
+    const fetchDataMercGenre = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/album/genre/new?name=${name}`,
+          `${baseURL}/genre/artist/merchandise?name=${name}`,
         );
-        setDataAlbumNew(response.data);
+        const merchandiseData = response.data;
+        const updatedMerchandiseData = await Promise.all(
+          merchandiseData.map(async (item) => {
+            const images = await fetchImageData(item.id_merchandise);
+            return { ...item, images };
+          }),
+        );
+
+        setDataMerchandiseGenre(updatedMerchandiseData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -69,13 +73,21 @@ export default function index() {
       }
     };
     if (name) {
-      fetchDataNewRelease();
+      fetchDataMercGenre();
     }
   }, [name]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const fetchImageData = async (id_merch) => {
+    try {
+      const response = await axios.get(
+        `${baseURL}/image/merchandise?id=${id_merch}&number=1`,
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching image data:', error);
+      return [];
+    }
+  };
 
   return (
     <>
@@ -99,48 +111,38 @@ export default function index() {
         </div>
       </div>
       <div className="mb-4 px-2">
-        <h1 className="my-5 text-2xl font-bold">New Release in {name}</h1>
+        <h1 className="my-2 text-2xl font-bold">Artists of {name}</h1>
         <div className="flex flex-wrap gap-6 overflow-auto">
-          {dataAlbumNew.map((item, i) => (
-            <a key={i} href={`/album/${item.id_album}`}>
-              <div className="min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
+          {dataArtistGenre.map((item, i) => (
+            <a key={i} href={`/profile/${item.id_artist}`}>
+              <div className="min-w-[140px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
                 <img
-                  className="w-56 rounded"
-                  src={`${baseURLFile}/assets/image/album/${item.image}`}
+                  className="h-36 w-36 rounded-full object-cover"
+                  src={`${baseURLFile}/assets/image/avatar/${item.avatar}`}
                 />
-
                 <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                <p className="text-sm text-slate-200">{item.Artist.name}</p>
+                <p className="text-sm text-slate-200">Artist</p>
               </div>
             </a>
           ))}
         </div>
       </div>
       <div className="mb-4 px-2">
-        <h1 className="my-5 text-2xl font-bold">Classic 90's of {name}</h1>
+        <h1 className="my-2 text-2xl font-bold">Merchandise from {name}</h1>
         <div className="flex flex-wrap gap-6 overflow-auto">
-          {dataAlbumOld.map((item, i) => (
-            <a key={i} href={`/album/${item.id_album}`}>
-              <div className="min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
+          {dataMerchandiseGenre.map((item, i) => (
+            <a href={`/detail/merchandise/${item.id_merchandise}`} key={i}>
+              <div className="min-w-[140px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
                 <img
-                  className="w-56 rounded"
-                  src={`${baseURLFile}/assets/image/album/${item.image}`}
+                  className="h-44 w-44 rounded"
+                  src={`${baseURLFile}/assets/image/merchandise/${item.images[0].name}`}
                 />
-
                 <p className="mb-1 mt-2 font-bold">{item.name}</p>
                 <p className="text-sm text-slate-200">{item.Artist.name}</p>
               </div>
             </a>
           ))}
         </div>
-      </div>
-      <div className="mb-4 px-2">
-        <h1 className="my-5 text-2xl font-bold">Popular {name} playlist</h1>
-        <div className="flex flex-wrap gap-6 overflow-auto"></div>
-      </div>
-      <div className="mb-4 px-2">
-        <h1 className="my-5 text-2xl font-bold">New Age {name} Essentials</h1>
-        <div className="flex flex-wrap gap-6 overflow-auto"></div>
       </div>
     </>
   );

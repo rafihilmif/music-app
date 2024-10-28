@@ -112,7 +112,7 @@ export default function Index() {
   };
 
   const subtotal = calculateSubtotal();
-  const tax = subtotal * 0.01;
+  const tax = subtotal * 0.15;
   const total = subtotal + tax;
   const isCartEmpty = dataCart.length === 0;
 

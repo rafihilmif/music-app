@@ -11,7 +11,11 @@ export default function index() {
   const [id, setId] = useState('');
 
   const [dataOrderTransaction, setDataOrderTransaction] = useState([]);
+  const [totalTransaction, setTotalTransaction] = useState();
   const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const [timeFilter, setTimeFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,9 +37,10 @@ export default function index() {
     const fetchDataOrderTransaction = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/artist/transaction?id=${id}&page=${1}`,
+          `${baseURL}/artist/transaction?id=${id}&page=${currentPage}&timeFilter=${timeFilter}`,
         );
         setDataOrderTransaction(response.data.data);
+        setTotalTransaction(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -43,7 +48,19 @@ export default function index() {
     if (id) {
       fetchDataOrderTransaction();
     }
-  }, [id]);
+  }, [id, timeFilter, currentPage]);
+
+  const handleDurationChange = (event) => {
+    setTimeFilter(event.target.value);
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage(currentPage - 1);
+  };
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {
@@ -79,13 +96,14 @@ export default function index() {
                       </label>
                       <select
                         id="duration"
+                        value={timeFilter}
+                        onChange={handleDurationChange}
                         className="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
                       >
-                        <option value="#">this week</option>
-                        <option value="this month">this month</option>
-                        <option value="last 3 months">the last 3 months</option>
-                        <option value="last 6 months">the last 6 months</option>
-                        <option value="this year">this year</option>
+                        <option value="">All time</option>
+                        <option value="this month">This month</option>
+                        <option value="last 3 months">Last 3 months</option>
+                        <option value="last 6 months">Last 6 months</option>
                       </select>
                     </div>
                   </div>
@@ -189,8 +207,9 @@ export default function index() {
                 >
                   <ul className="flex h-8 items-center -space-x-px text-sm">
                     <li>
-                      <a
-                        href="#"
+                      <button
+                        onClick={handlePrevPage}
+                        disabled={currentPage === 1}
                         className="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                       >
                         <span className="sr-only">Previous</span>
@@ -209,11 +228,12 @@ export default function index() {
                             d="m15 19-7-7 7-7"
                           />
                         </svg>
-                      </a>
+                      </button>
                     </li>
                     <li>
-                      <a
-                        href="#"
+                      <button
+                        onClick={handleNextPage}
+                        disabled={currentPage * 9 >= totalTransaction}
                         className="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                       >
                         <span className="sr-only">Next</span>
@@ -232,7 +252,7 @@ export default function index() {
                             d="m9 5 7 7-7 7"
                           />
                         </svg>
-                      </a>
+                      </button>
                     </li>
                   </ul>
                 </nav>

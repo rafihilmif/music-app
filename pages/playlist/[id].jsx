@@ -239,9 +239,11 @@ export default function Index() {
       <Navbar />
       <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-end">
         <img
-          className="max-h-50 max-w-72 rounded"
+          className="max-h-50 aspect-square max-w-72 rounded object-cover"
           src={`${baseURLFile}/assets/image/playlist/${imagePlaylist}`}
-          alt=""
+          width={288}
+          height={288}
+          alt={`${namePlaylist} playlist cover`}
         />
         <div className="flex flex-col">
           <p>Playlist</p>

@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
+import Swal from 'sweetalert2';
 
 export default function detailMerchById() {
   const { data: session, status } = useSession();
@@ -167,20 +168,32 @@ export default function detailMerchById() {
     }
 
     try {
-      const response = await axios
-        .post(`${baseURL}/fans/cart`, {
-          id_fans: idFans,
-          id_merchandise: id,
-          qty: count,
-          size: isGarmentType ? selectedSize : null,
-        })
-        .then(alert('Successfully add item to cart'), router.reload());
+      const response = await axios.post(`${baseURL}/fans/cart`, {
+        id_fans: idFans,
+        id_merchandise: id,
+        qty: count,
+        size: isGarmentType ? selectedSize : null,
+      });
       if (response.status === 200) {
-        console.log(response.data.message);
-        console.log(response.data.data);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
       }
     } catch (error) {
-      alert('Terjadi kesalahan: ' + error.message);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while added item to cart',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
     }
   };
 

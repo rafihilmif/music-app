@@ -17,10 +17,12 @@ export default function index() {
   const [selectedType, setSelectedType] = useState('order');
   const [totalOrder, setTotalOrder] = useState(0);
   const [totalPlan, setTotalPlan] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  
 
   const [currentOrderPage, setCurrentOrderPage] = useState(1);
   const [currentPlanPage, setCurrentPlanPage] = useState(1);
+
+  const [timeFilter, setTimeFilter] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,7 +44,7 @@ export default function index() {
     const fetchDataPlanPayment = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/plan/payment?id=${id}&page=${1}`,
+          `${baseURL}/plan/payment?id=${id}&page=${currentPlanPage}&timeFilter=${timeFilter}`,
         );
         setDataPlanPayment(response.data.data);
         setTotalPlan(response.data.total);
@@ -53,13 +55,13 @@ export default function index() {
     if (id) {
       fetchDataPlanPayment();
     }
-  }, [id]);
+  }, [id, currentPlanPage, timeFilter]);
 
   useEffect(() => {
     const fetchDataOrderPayment = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/fans/order?id=${id}&page=${1}`,
+          `${baseURL}/fans/order?id=${id}&page=${currentOrderPage}&timeFilter=${timeFilter}`,
         );
         setDataOrderPayment(response.data.data);
         setTotalOrder(response.data.total);
@@ -70,7 +72,7 @@ export default function index() {
     if (id) {
       fetchDataOrderPayment();
     }
-  }, [id]);
+  }, [id, currentOrderPage, timeFilter]);
 
   const handleConfirmPlanPayment = async (idPlanPayment) => {
     try {
@@ -102,6 +104,10 @@ export default function index() {
     }).format(value);
   };
 
+  const handleDurationChange = (event) => {
+    setTimeFilter(event.target.value);
+  };
+
   const handleNextPage = () => {
     if (selectedType === 'order') {
       setCurrentOrderPage(currentOrderPage + 1);
@@ -112,9 +118,9 @@ export default function index() {
 
   const handlePrevPage = () => {
     if (selectedType === 'order') {
-      setCurrentOrderPage(Math.max(1, currentOrderPage - 1));
+      setCurrentOrderPage(currentOrderPage - 1);
     } else {
-      setCurrentPlanPage(Math.max(1, currentPlanPage - 1));
+      setCurrentPlanPage(currentPlanPage - 1);
     }
   };
 
@@ -173,11 +179,14 @@ export default function index() {
                       </label>
                       <select
                         id="duration"
+                        value={timeFilter}
+                        onChange={handleDurationChange}
                         className="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
                       >
-                        <option value="#">this month</option>
-                        <option value="last 3 months">the last 3 months</option>
-                        <option value="last 6 months">the last 6 months</option>
+                        <option value="">All time</option>
+                        <option value="this month">This month</option>
+                        <option value="last 3 months">Last 3 months</option>
+                        <option value="last 6 months">Last 6 months</option>
                       </select>
                     </div>
                   </div>
@@ -451,8 +460,8 @@ export default function index() {
                         onClick={handleNextPage}
                         disabled={
                           selectedType === 'order'
-                            ? currentOrderPage * 12 >= totalOrder
-                            : currentPlanPage * 12 >= totalPlan
+                            ? currentOrderPage * 9 >= totalOrder
+                            : currentPlanPage * 9 >= totalPlan
                         }
                         className="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                       >

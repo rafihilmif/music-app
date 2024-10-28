@@ -62,8 +62,6 @@ export default function orderById() {
     }).format(value);
   };
 
-  const tax = transactionTotal * 0.02;
-
   return (
     <>
       <Navbar />

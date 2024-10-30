@@ -40,15 +40,19 @@ export default function detailShowById() {
       <Navbar />
       <section className="mt-10 h-auto w-full overflow-hidden rounded-lg bg-transparent">
         <div className="mx-auto max-w-xl lg:max-w-6xl">
-          <div className="-mx-4 flex flex-wrap">
+          <div className="flex flex-wrap">
             <div className="mb-12 w-full px-2 lg:mb-0 lg:w-1/2">
-              <div className="-mx-3 flex">
+              <div className="flex">
                 <div className="w-auto px-3">
-                  <img
-                    className="block h-full w-full rounded-xl"
-                    src={`${baseURLFile}/assets/image/shows/${image}`}
-                    alt=""
-                  />
+                  <div className="h-full w-full overflow-hidden rounded-xl">
+                    <img
+                      width={300}
+                      height={300}
+                      className="h-full w-full object-cover"
+                      src={`${baseURLFile}/assets/image/shows/${image}`}
+                      alt=""
+                    />
+                  </div>
                 </div>
               </div>
             </div>

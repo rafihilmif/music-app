@@ -139,22 +139,23 @@ export default function SignUpFans() {
           </div>
           <div className="mt-8 flex w-full flex-col font-bold">
             <label className="text-sm">Choose a genre</label>
-            <input
-              list="genres"
+            <select
               onChange={(e) => setGenre(e.target.value)}
-              placeholder="Choose your genre"
-              className="font-book foucs:border-2 mt-2 rounded-md border border-slate-500 py-3 pl-4 outline-none transition-all placeholder:text-slate-500"
-            />
-            {errors.genre && (
-              <p className="mb-1 text-red-500">{errors.genre}</p>
-            )}
-            <datalist id="genres">
+              className="font-book mt-2 rounded-md border border-slate-500 py-3 pl-4 outline-none transition-all"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Choose your genre
+              </option>
               {dataGenre.map((item, i) => (
                 <option key={i} value={item.name}>
                   {item.name}
                 </option>
               ))}
-            </datalist>
+            </select>
+            {errors.genre && (
+              <p className="mb-1 text-red-500">{errors.genre}</p>
+            )}
           </div>
         </div>
         <div className="flex w-full flex-col items-center pb-3 pt-8 sm:px-3">

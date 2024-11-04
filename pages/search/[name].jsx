@@ -314,7 +314,7 @@ export default function index() {
         <div className="flex flex-wrap gap-6 overflow-auto">
           {dataAlbum.map((item, i) => (
             <a key={i} href={`/album/${item.id_album}`}>
-              <div className="w-[140px] min-w-[140px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
+              <div className="w-[180px] min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
                 <div className="aspect-square w-full overflow-hidden rounded">
                   <img
                     className="h-full w-full object-cover"

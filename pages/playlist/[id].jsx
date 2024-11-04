@@ -9,6 +9,7 @@ import { MoreHoriz } from '@mui/icons-material';
 
 import { baseURLFile } from '@/baseURLFile';
 import usePlayerStore from '@/store/usePlayerStore';
+import Swal from 'sweetalert2';
 
 export default function Index() {
   const router = useRouter();
@@ -211,25 +212,58 @@ export default function Index() {
 
   const handleAddSong = async (idSong) => {
     try {
-      const response = await axios
-        .post(
-          `${baseURL}/user/add/song/playlist?idPlaylist=${id}&idSong=${idSong}`,
-        )
-        .then(alert('Successfully added song to playlist'), router.reload());
+      const response = await axios.post(
+        `${baseURL}/user/add/song/playlist?idPlaylist=${id}&idSong=${idSong}`,
+      );
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
+      }
     } catch (error) {
-      alert('Error: ' + error.message);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while add song to playlist',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
     }
   };
 
   const handleRemoveSong = async (idSong) => {
     try {
-      await axios
-        .delete(`${baseURL}/user/playlist/song?id=${idSong}`)
-        .then(alert('Successfully remove song to playlist'), router.reload());
+      await axios.delete(`${baseURL}/user/playlist/song?id=${idSong}`);
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
+      }
     } catch (error) {
-      alert('Error: ' + error.message);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while remove song to playlist',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
+      window.location.reload();
     }
   };
+
   useEffect(() => {
     console.log(planStatus);
   }, [planStatus]);

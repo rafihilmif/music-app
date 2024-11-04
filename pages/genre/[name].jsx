@@ -97,14 +97,18 @@ export default function index() {
         <div className="flex flex-wrap gap-6 overflow-auto">
           {dataAlbumRecom.map((item, i) => (
             <a key={i} href={`/album/${item.id_album}`}>
-              <div className="min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
-                <img
-                  className="w-56 rounded"
-                  src={`${baseURLFile}/assets/image/album/${item.image}`}
-                />
-
-                <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                <p className="text-sm text-slate-200">{item.Artist.name}</p>
+              <div className="w-[180px] min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
+                <div className="aspect-square w-full overflow-hidden rounded">
+                  <img
+                    className="h-full w-full object-cover"
+                    src={`${baseURLFile}/assets/image/album/${item.image}`}
+                    alt={item.name}
+                  />
+                </div>
+                <p className="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                <p className="truncate text-sm text-slate-200">
+                  {item.Artist.name}
+                </p>
               </div>
             </a>
           ))}

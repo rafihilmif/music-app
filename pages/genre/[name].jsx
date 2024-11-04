@@ -132,17 +132,22 @@ export default function index() {
         </div>
       </div>
       <div className="mb-4 px-2">
-        <h1 className="my-2 text-2xl font-bold">Merchandise from {name}</h1>
+        <h1 className="my-5 text-2xl font-bold">Merchandise from {name}</h1>
         <div className="flex flex-wrap gap-6 overflow-auto">
           {dataMerchandiseGenre.map((item, i) => (
             <a href={`/detail/merchandise/${item.id_merchandise}`} key={i}>
-              <div className="min-w-[140px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
-                <img
-                  className="h-44 w-44 rounded"
-                  src={`${baseURLFile}/assets/image/merchandise/${item.images[0].name}`}
-                />
-                <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                <p className="text-sm text-slate-200">{item.Artist.name}</p>
+              <div className="w-[180px] min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
+                <div className="aspect-square w-full overflow-hidden rounded">
+                  <img
+                    className="h-full w-full object-cover"
+                    src={`${baseURLFile}/assets/image/merchandise/${item.images[0].name}`}
+                    alt={item.name}
+                  />
+                </div>
+                <p className="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                <p className="truncate text-sm text-slate-200">
+                  {item.Artist.name}
+                </p>
               </div>
             </a>
           ))}

@@ -240,7 +240,9 @@ export default function Index() {
 
   const handleRemoveSong = async (idSong) => {
     try {
-      await axios.delete(`${baseURL}/user/playlist/song?id=${idSong}`);
+      const response = await axios.delete(
+        `${baseURL}/user/playlist/song?id=${idSong}`,
+      );
       if (response.status === 200) {
         Swal.fire({
           icon: 'success',

@@ -9,7 +9,6 @@ import { getSession, useSession } from 'next-auth/react';
 export default function index() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [id, setId] = useState();
 
   const [email, setEmail] = useState();
   const [firstName, setFirstName] = useState();
@@ -18,7 +17,6 @@ export default function index() {
   const [dataCart, setDataCart] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalQty, setTotalQty] = useState(0);
-  const [idFans, setIdFans] = useState();
 
   const [codeProvince, setCodeProvince] = useState();
   const [codeCities, setCodeCities] = useState();
@@ -34,21 +32,6 @@ export default function index() {
   const [address, setAddress] = useState();
 
   const [snapToken, setSnapToken] = useState(null);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
-        setId(response.data.id_fans);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
 
   useEffect(() => {
     const loadMidtransScript = () => {
@@ -95,25 +78,14 @@ export default function index() {
   }, [codeProvince]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
-        setIdFans(response.data.id_fans);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
-
-  useEffect(() => {
     const fetchDataCart = async () => {
       try {
-        const response = await axios.get(`${baseURL}/fans/cart?id=${idFans}`);
+        const response = await axios.get(`${baseURL}/fans/cart`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataCart(response.data.data);
         setTotalItems(response.data.totalItems);
         setTotalQty(response.data.totalQty);
@@ -121,10 +93,10 @@ export default function index() {
         console.error('Error fetching data:', error);
       }
     };
-    if (idFans) {
+    if (session) {
       fetchDataCart();
     }
-  }, [idFans]);
+  }, [session]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {
@@ -186,7 +158,7 @@ export default function index() {
   const handleBuyNow = async () => {
     try {
       const response = await axios.post(
-        `${baseURL}/fans/order?id=${id}`,
+        `${baseURL}/fans/order`,
         {
           amount: total,
           address: address + ', ' + zipcode,
@@ -198,6 +170,7 @@ export default function index() {
         },
         {
           headers: {
+            Authorization: `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',
           },
         },

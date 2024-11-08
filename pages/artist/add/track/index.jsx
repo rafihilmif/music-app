@@ -28,6 +28,10 @@ export default function index() {
   const [createObjectImageURL, setCreateObjectImageURL] = useState(null);
   const [createObjectAudioURL, setCreateObjectAudioURL] = useState(null);
 
+  const [imageProgress, setImageProgress] = useState(0);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
 
@@ -82,6 +86,7 @@ export default function index() {
       const i = event.target.files[0];
       setImage(i);
       setCreateObjectImageURL(URL.createObjectURL(i));
+      setImageProgress(0);
     }
   };
 
@@ -90,6 +95,7 @@ export default function index() {
       const a = event.target.files[0];
       setAudio(a);
       setCreateObjectAudioURL(URL.createObjectURL(a));
+      setAudioProgress(0);
     }
   };
 
@@ -103,6 +109,7 @@ export default function index() {
   }, [isChecked]);
 
   const handleUploadSong = async () => {
+    setIsUploading(true);
     const formData = new FormData();
     formData.append('image', image);
     formData.append('audio', audio);
@@ -122,8 +129,22 @@ export default function index() {
       const response = await axios.post(
         `${baseURL}/artist/song/add?id=${id}`,
         formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+
+            setImageProgress(percentCompleted);
+            setAudioProgress(percentCompleted);
+          },
+        },
       );
       if (response.status === 201) {
+        setIsUploading(false);
+        setImageProgress(0);
+        setAudioProgress(0);
+
         Swal.fire({
           icon: 'success',
           title: 'Success',
@@ -137,6 +158,10 @@ export default function index() {
         });
       }
     } catch (error) {
+      setIsUploading(false);
+      setImageProgress(0);
+      setAudioProgress(0);
+
       if (error.response && error.response.status === 400) {
         const { path, message } = error.response.data;
         setErrors((prevErrors) => ({
@@ -230,26 +255,61 @@ export default function index() {
               {errors.release_date && (
                 <p className="mb-1 text-red-500">{errors.release_date}</p>
               )}
+
               <div className="flex flex-col gap-4 border-b py-4 sm:flex-row">
                 <p className="w-32 shrink-0 text-lg font-medium">
                   MP3/MP4 File
                 </p>
-                <input
-                  onChange={uploadAudioToClient}
-                  type="file"
-                  className="w-full rounded-md border bg-transparent px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
-                />
+                <div className="w-full">
+                  <input
+                    onChange={uploadAudioToClient}
+                    type="file"
+                    accept="audio/*"
+                    className="w-full rounded-md border bg-transparent px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
+                  />
+                  {audio && (
+                    <div className="mt-2">
+                      <div className="text-sm text-gray-500">{audio.name}</div>
+                      <div className="relative mt-2 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
+                        <div
+                          className="absolute left-0 right-0 h-full rounded-lg bg-[#6A64F1]"
+                          style={{ width: `${audioProgress}%` }}
+                        ></div>
+                      </div>
+                      <div className="mt-1 text-sm text-gray-500">
+                        {isUploading ? `${audioProgress}%` : 'Ready to upload'}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col gap-4 py-4  lg:flex-row">
-                <div className="w-32 shrink-0  sm:py-4">
+              <div className="flex flex-col gap-4 py-4 lg:flex-row">
+                <div className="w-32 shrink-0 sm:py-4">
                   <p className="mb-auto text-lg font-medium">Image</p>
                 </div>
-                <input
-                  onChange={uploadImageToClient}
-                  name="image"
-                  type="file"
-                  className="bg-transparente w-full rounded-md border px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
-                />
+                <div className="w-full">
+                  <input
+                    onChange={uploadImageToClient}
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    className="w-full rounded-md border bg-transparent px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
+                  />
+                  {image && (
+                    <div className="mt-2">
+                      <div className="text-sm text-gray-500">{image.name}</div>
+                      <div className="relative mt-2 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
+                        <div
+                          className="absolute left-0 right-0 h-full rounded-lg bg-[#6A64F1]"
+                          style={{ width: `${imageProgress}%` }}
+                        ></div>
+                      </div>
+                      <div className="mt-1 text-sm text-gray-500">
+                        {isUploading ? `${imageProgress}%` : 'Ready to upload'}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -296,9 +356,14 @@ export default function index() {
             <div className="mt-5 w-full">
               <button
                 onClick={handleUploadSong}
-                className="hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded bg-blue-600 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white"
+                disabled={isUploading}
+                className={`inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white ${
+                  isUploading
+                    ? 'cursor-not-allowed bg-gray-400'
+                    : 'bg-blue-600 hover:bg-blue-700 focus:bg-blue-600 active:bg-blue-700'
+                }`}
               >
-                Publish
+                {isUploading ? 'Uploading...' : 'Publish'}
               </button>
             </div>
           </div>

@@ -14,14 +14,15 @@ import { baseURLFile } from '@/baseURLFile';
 import axios from 'axios';
 import { signOut, useSession } from 'next-auth/react';
 import debounce from 'lodash.debounce';
-import { redirect } from 'next/dist/server/api-utils';
 import Link from 'next/link';
 
 export default function Navbar() {
   const router = useRouter();
   const path = router?.asPath;
   const { name } = router.query;
+
   const { data: session, status } = useSession();
+
   const [totalItems, setTotalItems] = useState(0);
 
   const [avatar, setAvatar] = useState();
@@ -29,7 +30,6 @@ export default function Navbar() {
 
   const [role, setRole] = useState();
 
-  const [idFans, setIdFans] = useState('');
   const [dataCart, setDataCart] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -62,10 +62,12 @@ export default function Navbar() {
             setNameUser(response.data.name);
             setAvatar(response.data.avatar);
           } else if (role === 'fans') {
-            response = await axios.get(
-              `${baseURL}/detail/fans?email=${session.user.email}`,
-            );
-            setIdFans(response.data.id_fans);
+            const response = await axios.get(`${baseURL}/detail/fans`, {
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
             setNameUser(response.data.username);
             setAvatar(response.data.avatar);
           }
@@ -117,9 +119,14 @@ export default function Navbar() {
 
   useEffect(() => {
     const fetchDataCart = async () => {
-      if (status === 'authenticated' && role === 'fans' && idFans) {
+      if (status === 'authenticated' && role === 'fans') {
         try {
-          const response = await axios.get(`${baseURL}/fans/cart?id=${idFans}`);
+          const response = await axios.get(`${baseURL}/fans/cart`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setDataCart(response.data.data);
           setTotalItems(response.data.totalItems);
         } catch (error) {
@@ -131,10 +138,10 @@ export default function Navbar() {
         }
       }
     };
-    if (idFans) {
+    if (session) {
       fetchDataCart();
     }
-  }, [status, role, idFans]);
+  }, [status, role, session]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {

@@ -130,8 +130,25 @@ export default function index() {
       const response = await axios.post(
         `${baseURL}/artist/merchandise/add?id=${id}`,
         formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+
+            // Update progress for all files since we're uploading them together
+            setUploadProgress((prevProgress) => {
+              const newProgress = {};
+              image.forEach((file) => {
+                newProgress[file.name] = percentCompleted;
+              });
+              return newProgress;
+            });
+          },
+        },
       );
       if (response.status === 201) {
+        setUploadProgress({});
         Swal.fire({
           icon: 'success',
           title: 'Success',
@@ -154,7 +171,7 @@ export default function index() {
       }
     }
   };
-  
+
   return (
     <>
       <Navbar />
@@ -285,13 +302,16 @@ export default function index() {
                     </label>
                   </div>
                   {image.map((file, index) => (
-                    <div class="mb-4 rounded-md bg-[#F5F7FB] px-8 py-4">
-                      <div class="flex items-center justify-between">
-                        <span class="truncate pr-3 text-base font-medium text-[#07074D]">
+                    <div
+                      key={file.name}
+                      className="mb-4 rounded-md bg-[#F5F7FB] px-8 py-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="truncate pr-3 text-base font-medium text-[#07074D]">
                           {file.name}
                         </span>
                         <button
-                          class="text-[#07074D]"
+                          className="text-[#07074D]"
                           onClick={() => removeImage(index)}
                         >
                           <svg
@@ -302,22 +322,32 @@ export default function index() {
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
+                              fillRule="evenodd"
+                              clipRule="evenodd"
                               d="M0.279337 0.279338C0.651787 -0.0931121 1.25565 -0.0931121 1.6281 0.279338L9.72066 8.3719C10.0931 8.74435 10.0931 9.34821 9.72066 9.72066C9.34821 10.0931 8.74435 10.0931 8.3719 9.72066L0.279337 1.6281C-0.0931125 1.25565 -0.0931125 0.651788 0.279337 0.279338Z"
                               fill="currentColor"
                             />
                             <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
+                              fillRule="evenodd"
+                              clipRule="evenodd"
                               d="M0.279337 9.72066C-0.0931125 9.34821 -0.0931125 8.74435 0.279337 8.3719L8.3719 0.279338C8.74435 -0.0931127 9.34821 -0.0931123 9.72066 0.279338C10.0931 0.651787 10.0931 1.25565 9.72066 1.6281L1.6281 9.72066C1.25565 10.0931 0.651787 10.0931 0.279337 9.72066Z"
                               fill="currentColor"
                             />
                           </svg>
                         </button>
                       </div>
-                      <div class="relative mt-5 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
-                        <div class="absolute left-0 right-0 h-full w-[75%] rounded-lg bg-[#6A64F1]"></div>
+                      <div className="relative mt-5 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
+                        <div
+                          className="absolute left-0 right-0 h-full rounded-lg bg-[#6A64F1]"
+                          style={{
+                            width: `${uploadProgress[file.name] || 0}%`,
+                          }}
+                        ></div>
+                      </div>
+                      <div className="mt-2 text-sm text-gray-500">
+                        {uploadProgress[file.name]
+                          ? `${uploadProgress[file.name]}%`
+                          : 'Ready to upload'}
                       </div>
                     </div>
                   ))}

@@ -11,9 +11,6 @@ export default NextAuth({
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
-      session: {
-        jwt: true,
-      },
       authorize: async (credentials) => {
         try {
           const response = await axios.post(`${baseURL}/auth/login`, {
@@ -21,51 +18,47 @@ export default NextAuth({
             password: credentials.password,
           });
           const user = response.data;
-          if (user.role == 'artist') {
+          if (user && user.token) {
             return {
-              id: user.id_artist,
-              name: user.username,
-              password: user.password,
-              name: user.name,
+              id: user.id_fans || user.id_artist,
               email: user.email,
               role: user.role,
-              formed: user.formed,
-              genre: user.genre,
-              description: user.description,
               avatar: user.avatar,
-            };
-          } else if (user.role === 'fans') {
-            return {
-              id: user.id_fans,
+              accessToken: user.token,
               username: user.username,
-              email: user.email,
-              first_name: user.first_name,
-              last_name: user.last_name,
               name: user.name,
-              phone: user.phone,
-              birth: user.birth,
-              gender: user.gender,
-              role: user.role,
-              avatar: user.avatar,
             };
+          } else {
+            console.error('Access token is missing in user data');
+            return null;
           }
         } catch (error) {
-          console.log(error);
+          console.log('Login error:', error);
+          return null;
         }
       },
     }),
   ],
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60,
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
         token.image = user.avatar;
+        token.accessToken = user.accessToken;
+        token.id = user.id;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
       session.user.role = token.role;
       session.user.avatar = token.image;
+      session.user.id = token.id;
+      session.accessToken = token.accessToken;
       return session;
     },
   },

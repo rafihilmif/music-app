@@ -24,27 +24,18 @@ export default function index() {
 
   const [timeFilter, setTimeFilter] = useState('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
-        setId(response.data.id_fans);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
 
   useEffect(() => {
     const fetchDataPlanPayment = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/plan/payment?id=${id}&page=${currentPlanPage}&timeFilter=${timeFilter}`,
+          `${baseURL}/plan/payment?page=${currentPlanPage}&timeFilter=${timeFilter}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataPlanPayment(response.data.data);
         setTotalPlan(response.data.total);
@@ -52,16 +43,22 @@ export default function index() {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataPlanPayment();
     }
-  }, [id, currentPlanPage, timeFilter]);
+  }, [session, currentPlanPage, timeFilter]);
 
   useEffect(() => {
     const fetchDataOrderPayment = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/fans/order?id=${id}&page=${currentOrderPage}&timeFilter=${timeFilter}`,
+          `${baseURL}/fans/order?page=${currentOrderPage}&timeFilter=${timeFilter}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataOrderPayment(response.data.data);
         setTotalOrder(response.data.total);
@@ -69,27 +66,37 @@ export default function index() {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataOrderPayment();
     }
-  }, [id, currentOrderPage, timeFilter]);
+  }, [session, currentOrderPage, timeFilter]);
 
   const handleConfirmPlanPayment = async (idPlanPayment) => {
     try {
       await axios
-        .get(
-          `${baseURL}/plan/confirm/payment?idFans=${id}&idPlanPayment=${idPlanPayment}`,
-        )
+        .get(`${baseURL}/plan/confirm/payment?idPlanPayment=${idPlanPayment}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
         .then(router.reload());
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+
   const handleConfirmOrderPayment = async (idOrderPayment) => {
     try {
       await axios
         .get(
-          `${baseURL}/fans/order/confirm/payment?idFans=${id}&idOrderPayment=${idOrderPayment}`,
+          `${baseURL}/fans/order/confirm/payment?idOrderPayment=${idOrderPayment}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         )
         .then(router.reload());
     } catch (error) {

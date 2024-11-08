@@ -52,9 +52,12 @@ export default function Sidebar() {
             );
             setId(response.data.id_artist);
           } else if (session.user.role === 'fans') {
-            response = await axios.get(
-              `${baseURL}/detail/fans?email=${session.user.email}`,
-            );
+            const response = await axios.get(`${baseURL}/detail/fans`, {
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
             setId(response.data.id_fans);
           }
         } catch (error) {

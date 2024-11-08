@@ -10,39 +10,27 @@ import { getSession, useSession } from 'next-auth/react';
 export default function Index() {
   const router = useRouter();
   const { data: session } = useSession();
-
+  
   const [dataCart, setDataCart] = useState([]);
-  const [idFans, setIdFans] = useState();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
-        setIdFans(response.data.id_fans);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
 
   useEffect(() => {
     const fetchDataCart = async () => {
       try {
-        const response = await axios.get(`${baseURL}/fans/cart?id=${idFans}`);
+        const response = await axios.get(`${baseURL}/fans/cart`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataCart(response.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (idFans) {
+    if (session) {
       fetchDataCart();
     }
-  }, [idFans]);
+  }, [session]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {
@@ -57,6 +45,12 @@ export default function Index() {
         `${baseURL}/fans/cart?id=${id_cart_item}`,
         {
           qty: newQty,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
         },
       );
 
@@ -119,7 +113,12 @@ export default function Index() {
   const handleRemoveItem = async (idCartItem) => {
     try {
       await axios
-        .delete(`${baseURL}/fans/cart/item?id=${idCartItem}`)
+        .delete(`${baseURL}/fans/cart/item?id=${idCartItem}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
         .then(router.reload());
     } catch (error) {
       alert('Error: ' + error.message);

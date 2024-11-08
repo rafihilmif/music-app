@@ -23,9 +23,12 @@ export default function subscriptionById() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
+        const response = await axios.get(`${baseURL}/detail/fans`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setEmail(response.data.email);
         setUserFirstName(response.data.first_name);
         setUserLastName(response.data.last_name);

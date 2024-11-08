@@ -14,7 +14,9 @@ export default function App({ Component, pageProps }) {
       <SessionProvider session={pageProps.session}>
         {router.pathname === '/' ||
         router.pathname === '/signup/artist' ||
-        router.pathname === '/signup/fans' ? (
+        router.pathname === '/signup/fans' ||
+        router.pathname.startsWith('/signup/success/') ||
+        router.pathname.startsWith('/verify/') ? (
           <Component {...pageProps} />
         ) : (
           <>

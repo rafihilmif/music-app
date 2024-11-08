@@ -60,7 +60,6 @@ export default function index() {
       'Gombong',
       'Kartasura',
       'Magelang',
-      'Magelang',
       'Salatiga',
       'Semarang',
       'Surakarta',
@@ -102,15 +101,47 @@ export default function index() {
       'Soreang',
       'Sumedang',
     ],
+    'DKI Jakarta': [
+      'Jakarta Pusat',
+      'Jakarta Utara',
+      'Jakarta Selatan',
+      'Jakarta Barat',
+      'Jakarta Timur',
+    ],
+    Banten: [
+      'Tangerang',
+      'Serang',
+      'Cilegon',
+      'Pandeglang',
+      'Lebak',
+      'Rangkasbitung',
+      'Balaraja',
+      'Ciputat',
+    ],
+    Bali: [
+      'Denpasar',
+      'Singaraja',
+      'Tabanan',
+      'Gianyar',
+      'Ubud',
+      'Bangli',
+      'Amlapura',
+      'Negara',
+    ],
+    Yogyakarta: [
+      'Yogyakarta',
+      'Bantul',
+      'Sleman',
+      'Kulon Progo',
+      'Gunungkidul',
+    ],
     'Kalimantan Timur': [
       'Balikpapan',
       'Bontang',
       'Berau',
-      'Kutai',
       'Kutai Kartanegara',
       'Mahakam Hulu',
       'Paser',
-      'Balikpapan',
       'Samarinda',
       'Loa Janan',
     ],
@@ -150,7 +181,6 @@ export default function index() {
       'Tana Toraja',
       'Wajo',
       'Makassar',
-      'Maros',
       'Palopo',
       'Pare-Pare',
       'Rantepao',
@@ -179,8 +209,6 @@ export default function index() {
       'Toli-Toli',
       'Palu',
       'Luwuk',
-      'Morowali',
-      'Poso',
       'Tojo Una-Una',
     ],
     'Sulawesi Utara': [
@@ -222,6 +250,81 @@ export default function index() {
       'Padang',
       'Pariaman',
     ],
+    Aceh: [
+      'Banda Aceh',
+      'Langsa',
+      'Lhokseumawe',
+      'Sabang',
+      'Subulussalam',
+      'Takengon',
+      'Meulaboh',
+      'Bireuen',
+      'Sigli',
+      'Blangpidie',
+    ],
+    'Sumatera Utara': [
+      'Medan',
+      'Binjai',
+      'Pematangsiantar',
+      'Tebing Tinggi',
+      'Sibolga',
+      'Gunungsitoli',
+      'Labuhan Batu',
+      'Deli Serdang',
+      'Karo',
+    ],
+    Riau: [
+      'Pekanbaru',
+      'Dumai',
+      'Bengkalis',
+      'Rokan Hilir',
+      'Rokan Hulu',
+      'Kampar',
+      'Siak',
+      'Indragiri Hulu',
+      'Pelalawan',
+    ],
+    Lampung: [
+      'Bandar Lampung',
+      'Metro',
+      'Lampung Selatan',
+      'Lampung Tengah',
+      'Lampung Timur',
+      'Way Kanan',
+      'Pringsewu',
+    ],
+    Maluku: [
+      'Ambon',
+      'Tual',
+      'Masohi',
+      'Saumlaki',
+      'Namlea',
+      'Dobo',
+      'Piru',
+      'Bula',
+      'Tiakur',
+    ],
+    Papua: [
+      'Jayapura',
+      'Biak',
+      'Manokwari',
+      'Sorong',
+      'Wamena',
+      'Merauke',
+      'Timika',
+      'Serui',
+      'Nabire',
+    ],
+    'Papua Barat': [
+      'Sorong',
+      'Fakfak',
+      'Kaimana',
+      'Raja Ampat',
+      'Teluk Bintuni',
+      'Teluk Wondama',
+      'Manokwari',
+      'Tambrauw',
+    ],
   };
 
   const { data: session } = useSession();
@@ -246,6 +349,9 @@ export default function index() {
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const [imageProgress, setImageProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleCheckboxChange = () => {
     if (checkboxRef.current) {
@@ -281,6 +387,7 @@ export default function index() {
       const i = event.target.files[0];
       setImage(i);
       setCreateObjectImageURL(URL.createObjectURL(i));
+      setImageProgress(0);
     }
   };
   useEffect(() => {
@@ -297,6 +404,7 @@ export default function index() {
   }, [isChecked]);
 
   const handleUploadShow = async () => {
+    setIsUploading(true);
     const formData = new FormData();
     formData.append('image', image);
     formData.append('name', name);
@@ -310,8 +418,18 @@ export default function index() {
       const response = await axios.post(
         `${baseURL}/artist/shows/add?id=${id}`,
         formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+            setImageProgress(percentCompleted);
+          },
+        },
       );
       if (response.status === 201) {
+        setIsUploading(false);
+        setImageProgress(0);
         Swal.fire({
           icon: 'success',
           title: 'Success',
@@ -323,6 +441,9 @@ export default function index() {
         });
       }
     } catch (error) {
+      setIsUploading(false);
+      setImageProgress(0);
+
       if (error.response && error.response.status === 400) {
         const { path, message } = error.response.data;
         setErrors((prevErrors) => ({
@@ -417,19 +538,37 @@ export default function index() {
                 <p className="w-32 shrink-0 font-medium">Contact Person</p>
                 <input
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="(optional)"
+                  placeholder="Type a contact person"
                   className="w-full rounded-md border bg-transparent px-2 py-2 outline-none ring-blue-600 focus:ring-1"
                 />
               </div>
-              <div className="flex flex-col gap-4 py-4  lg:flex-row">
-                <div className="w-32 shrink-0  sm:py-4">
-                  <p className="mb-auto font-medium">Image</p>
+              <div className="flex flex-col gap-4 py-4 lg:flex-row">
+                <div className="w-32 shrink-0 sm:py-4">
+                  <p className="mb-auto text-lg font-medium">Image</p>
                 </div>
-                <input
-                  onChange={uploadImageToClient}
-                  type="file"
-                  className="w-full rounded-md border bg-transparent px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
-                />
+                <div className="w-full">
+                  <input
+                    onChange={uploadImageToClient}
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    className="w-full rounded-md border bg-transparent px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
+                  />
+                  {image && (
+                    <div className="mt-2">
+                      <div className="text-sm text-gray-500">{image.name}</div>
+                      <div className="relative mt-2 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
+                        <div
+                          className="absolute left-0 right-0 h-full rounded-lg bg-[#6A64F1]"
+                          style={{ width: `${imageProgress}%` }}
+                        ></div>
+                      </div>
+                      <div className="mt-1 text-sm text-gray-500">
+                        {isUploading ? `${imageProgress}%` : 'Ready to upload'}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -461,12 +600,17 @@ export default function index() {
               />
             </div>
             <div className="my-4"></div>
-            <div className="mt-9 w-full">
+            <div className="mt-5 w-full">
               <button
-                onClick={() => handleUploadShow()}
-                className="hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded bg-blue-600 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white"
+                onClick={handleUploadShow}
+                disabled={isUploading}
+                className={`inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white ${
+                  isUploading
+                    ? 'cursor-not-allowed bg-gray-400'
+                    : 'bg-blue-600 hover:bg-blue-700 focus:bg-blue-600 active:bg-blue-700'
+                }`}
               >
-                Publish
+                {isUploading ? 'Uploading...' : 'Publish'}
               </button>
             </div>
           </div>

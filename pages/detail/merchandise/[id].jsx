@@ -36,9 +36,12 @@ export default function detailMerchById() {
     if (status === 'authenticated' && session.user.role === 'fans') {
       const fetchDataFans = async () => {
         try {
-          const response = await axios.get(
-            `${baseURL}/detail/fans?email=${session.user.email}`,
-          );
+          const response = await axios.get(`${baseURL}/detail/fans`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setIdFans(response.data.id_fans);
           setRole(true);
         } catch (error) {
@@ -168,12 +171,20 @@ export default function detailMerchById() {
     }
 
     try {
-      const response = await axios.post(`${baseURL}/fans/cart`, {
-        id_fans: idFans,
-        id_merchandise: id,
-        qty: count,
-        size: isGarmentType ? selectedSize : null,
-      });
+      const response = await axios.post(
+        `${baseURL}/fans/cart`,
+        {
+          id_merchandise: id,
+          qty: count,
+          size: isGarmentType ? selectedSize : null,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
       if (response.status === 200) {
         Swal.fire({
           icon: 'success',

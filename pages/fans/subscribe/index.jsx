@@ -7,32 +7,18 @@ import { baseURL } from '@/baseURL';
 
 export default function index() {
   const { data: session } = useSession();
-  const [id, setId] = useState();
   const [snapToken, setSnapToken] = useState(null);
   const [currentPlan, setCurrentPlan] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
-        setId(response.data.id_fans);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
-
-  useEffect(() => {
     const fetchDataPlan = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/fans/plan/detail?id=${id}`,
-        );
+        const response = await axios.get(`${baseURL}/fans/plan/detail`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setCurrentPlan(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -41,7 +27,7 @@ export default function index() {
     if (session) {
       fetchDataPlan();
     }
-  }, [id]);
+  }, [session]);
 
   useEffect(() => {
     const loadMidtransScript = () => {
@@ -55,10 +41,19 @@ export default function index() {
 
   const handleBuyNow = async (amount, types) => {
     try {
-      const response = await axios.post(`${baseURL}/plan/payment?id=${id}`, {
-        amount,
-        types,
-      });
+      const response = await axios.post(
+        `${baseURL}/plan/payment`,
+        {
+          amount,
+          types,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
       const { token } = response.data;
       setSnapToken(token);
       window.snap.pay(token, {

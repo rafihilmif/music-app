@@ -22,6 +22,9 @@ export default function CreateAlbum() {
   const [isChecked, setIsChecked] = useState(false);
   const [status, setStatus] = useState();
 
+  const [imageProgress, setImageProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleCheckboxChange = () => {
     if (checkboxRef.current) {
       setIsChecked(checkboxRef.current.checked);
@@ -51,16 +54,17 @@ export default function CreateAlbum() {
     }
   }, [isChecked]);
 
-  const uploadToClient = (event) => {
+  const uploadImageToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
-
       setImage(i);
       setCreateObjectURL(URL.createObjectURL(i));
+      setImageProgress(0);
     }
   };
 
   const handleUploadAlbum = async () => {
+    setIsUploading(true);
     const formData = new FormData();
     formData.append('image', image);
     formData.append('name', name);
@@ -71,9 +75,20 @@ export default function CreateAlbum() {
       const response = await axios.post(
         `${baseURL}/artist/album/add?id=${id}`,
         formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+            setImageProgress(percentCompleted);
+          },
+        },
       );
 
       if (response.status === 201) {
+        setIsUploading(false);
+        setImageProgress(0);
+
         Swal.fire({
           icon: 'success',
           title: 'Success',
@@ -85,6 +100,9 @@ export default function CreateAlbum() {
         });
       }
     } catch (error) {
+      setIsUploading(false);
+      setImageProgress(0);
+
       if (error.response && error.response.status === 400) {
         const { path, message } = error.response.data;
         setErrors((prevErrors) => ({
@@ -123,16 +141,33 @@ export default function CreateAlbum() {
               {errors.name && (
                 <p className="mb-1 text-red-500">{errors.name}</p>
               )}
-              <div className="flex flex-col gap-4 py-4  lg:flex-row">
-                <div className="w-32 shrink-0  sm:py-4">
+              <div className="flex flex-col gap-4 py-4 lg:flex-row">
+                <div className="w-32 shrink-0 sm:py-4">
                   <p className="mb-auto text-lg font-medium">Image</p>
                 </div>
-                <input
-                  type="file"
-                  name="image"
-                  onChange={uploadToClient}
-                  className="w-full rounded-md border px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
-                />
+                <div className="w-full">
+                  <input
+                    onChange={uploadImageToClient}
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    className="w-full rounded-md border bg-transparent px-2 py-2 text-blue-600 outline-none ring-blue-600 focus:ring-1"
+                  />
+                  {image && (
+                    <div className="mt-2">
+                      <div className="text-sm text-gray-500">{image.name}</div>
+                      <div className="relative mt-2 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
+                        <div
+                          className="absolute left-0 right-0 h-full rounded-lg bg-[#6A64F1]"
+                          style={{ width: `${imageProgress}%` }}
+                        ></div>
+                      </div>
+                      <div className="mt-1 text-sm text-gray-500">
+                        {isUploading ? `${imageProgress}%` : 'Ready to upload'}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -163,12 +198,17 @@ export default function CreateAlbum() {
             </div>
 
             <div className="my-4"></div>
-            <div className="mt-9 w-full">
+            <div className="mt-5 w-full">
               <button
-                onClick={() => handleUploadAlbum()}
-                className="hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded bg-blue-600 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white"
+                onClick={handleUploadAlbum}
+                disabled={isUploading}
+                className={`inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white ${
+                  isUploading
+                    ? 'cursor-not-allowed bg-gray-400'
+                    : 'bg-blue-600 hover:bg-blue-700 focus:bg-blue-600 active:bg-blue-700'
+                }`}
               >
-                Publish
+                {isUploading ? 'Uploading...' : 'Publish'}
               </button>
             </div>
           </div>

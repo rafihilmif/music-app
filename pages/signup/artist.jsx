@@ -47,9 +47,7 @@ export default function SignUpFans() {
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
         }).then(() => {
-          window.location.reload();
-          // console.log(response.data.message);
-          // console.log(response.data.data);
+           router.push(`/signup/success/${email}`);
         });
       }
     } catch (error) {

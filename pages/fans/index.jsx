@@ -14,6 +14,7 @@ export default function MainLayoutFans() {
   const { data: session, status } = useSession();
   const [id, setId] = useState('');
   const [userName, setUserName] = useState();
+  const [token, setToken] = useState();
 
   const [dataArtistFollowed, setDataArtistFollowed] = useState([]);
   const [dataPlaylist, setDataPlaylist] = useState([]);
@@ -24,35 +25,49 @@ export default function MainLayoutFans() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (session?.accessToken) {
+      setToken(session.accessToken);
+    }
+  }, [session]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
+        const response = await axios.get(`${baseURL}/detail/fans`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setId(response.data.id_fans);
         setUserName(response.data.username);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (session) {
+    if (token) {
       fetchData();
     }
-  }, [session]);
+  }, [token]);
 
   useEffect(() => {
     const fetchDataArtistFollowed = async () => {
       try {
-        const response = await axios.get(`${baseURL}/fans/follow?id=${id}`);
+        const response = await axios.get(`${baseURL}/fans/follow`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataArtistFollowed(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataArtistFollowed();
     }
-  }, [id]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataPlaylist = async () => {
@@ -137,27 +152,11 @@ export default function MainLayoutFans() {
       <div className="p-4 text-white md:p-6">
         <h2 className="mb-4 flex items-center justify-between text-2xl font-bold">
           Artist You've been followed
-          {/* <button className="flex items-center text-sm text-gray-400">
-              Show all
-            </button> */}
         </h2>
-        {/* <div className="mb-6 flex space-x-4 overflow-x-auto">
-          <button className="whitespace-nowrap rounded-full bg-[#181818] px-4 py-2">
-            All
-          </button>
-          <button className="flex items-center whitespace-nowrap rounded-full bg-[#181818] px-4 py-2">
-            <MusicNote className="mr-2 h-4 w-4" />
-            Music
-          </button>
-          <button className="flex items-center whitespace-nowrap rounded-full bg-[#181818] px-4 py-2">
-            <LocalMall className="mr-2 h-4 w-4" />
-            Merchandise
-          </button>
-        </div> */}
-
         <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {dataArtistFollowed.map((item) => (
+          {dataArtistFollowed.map((item, i) => (
             <Link
+              key={i}
               href={`/profile/${item.id_artist}`}
               className="flex cursor-pointer items-center rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
             >
@@ -173,13 +172,11 @@ export default function MainLayoutFans() {
         <div className="mb-8">
           <h2 className="mb-4 flex items-center justify-between text-2xl font-bold">
             Playlist For {userName}
-            {/* <button className="flex items-center text-sm text-gray-400">
-              Show all
-            </button> */}
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 ">
-            {dataRandomPlaylist.map((item) => (
+            {dataRandomPlaylist.map((item, i) => (
               <Link
+                key={i}
                 href={`/playlist/${item.id_playlist}`}
                 className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
               >
@@ -214,17 +211,11 @@ export default function MainLayoutFans() {
         <div className="mb-8">
           <h2 className="mb-4 flex items-center justify-between text-2xl font-bold">
             Your Playlist
-            {/* <button className="flex items-center text-sm text-gray-400">
-              Show all
-            </button> */}
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {dataPlaylist.map((item) => (
-              <Link href={`/playlist/${item.id_playlist}`}>
-                <div
-                  key={item.id_playlist}
-                  className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"
-                >
+            {dataPlaylist.map((item, i) => (
+              <Link key={i} href={`/playlist/${item.id_playlist}`}>
+                <div className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700">
                   <img
                     src={`${baseURLFile}/assets/image/playlist/${item.image}`}
                     className="mb-4 aspect-square w-full rounded object-cover"
@@ -241,8 +232,8 @@ export default function MainLayoutFans() {
             Recommendation Merchandise
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {dataRandomMerchandise.map((item) => (
-              <Link href={`/detail/merchandise/${item.id_merchandise}`}>
+            {dataRandomMerchandise.map((item, i) => (
+              <Link key={i} href={`/detail/merchandise/${item.id_merchandise}`}>
                 <div
                   key={item.id_merchandise}
                   className="cursor-pointer rounded-lg bg-[#181818] p-4 hover:bg-gray-700"

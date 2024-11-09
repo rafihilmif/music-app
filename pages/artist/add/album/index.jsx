@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 export default function CreateAlbum() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [id, setId] = useState();
+
 
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
@@ -30,20 +30,6 @@ export default function CreateAlbum() {
       setIsChecked(checkboxRef.current.checked);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setId(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, [session]);
 
   useEffect(() => {
     if (isChecked) {
@@ -73,7 +59,7 @@ export default function CreateAlbum() {
 
     try {
       const response = await axios.post(
-        `${baseURL}/artist/album/add?id=${id}`,
+        `${baseURL}/artist/album/add`,
         formData,
         {
           onUploadProgress: (progressEvent) => {
@@ -81,6 +67,12 @@ export default function CreateAlbum() {
               (progressEvent.loaded * 100) / progressEvent.total,
             );
             setImageProgress(percentCompleted);
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
           },
         },
       );

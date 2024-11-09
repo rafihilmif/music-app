@@ -18,8 +18,7 @@ export default function collectionSongByArtist() {
   const [totalSong, setTotalSong] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [idFans, setIdFans] = useState(null);
+  
   const [planStatus, setPlanStatus] = useState(null);
 
   const observer = useRef();
@@ -34,38 +33,25 @@ export default function collectionSongByArtist() {
   } = usePlayerStore();
 
   useEffect(() => {
-    const fetchDataFansCheck = async () => {
-      try {
-        if (status === 'authenticated' && session.user.role === 'fans') {
-          const response = await axios.get(
-            `${baseURL}/detail/fans?email=${session.user.email}`,
-          );
-          setIdFans(response.data.id_fans);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchDataFansCheck();
-  }, [status, session]);
-
-  useEffect(() => {
     const fetchDataPlan = async () => {
       if (status === 'authenticated' && session.user.role === 'fans') {
         try {
-          const response = await axios.get(
-            `${baseURL}/fans/plan/detail?id=${idFans}`,
-          );
+          const response = await axios.get(`${baseURL}/fans/plan/detail`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setPlanStatus(response.data.type);
         } catch (error) {
           console.log("You're not fans");
         }
       }
     };
-    if (idFans) {
+    if (session) {
       fetchDataPlan();
     }
-  }, [status, session, idFans]);
+  }, [status, session]);
 
   const fetchData = useCallback(
     async (page) => {
@@ -73,6 +59,12 @@ export default function collectionSongByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/song?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
@@ -149,6 +141,12 @@ export default function collectionSongByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/song?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setSongs((prevData) => [...prevData, ...response.data.data]);
@@ -179,6 +177,12 @@ export default function collectionSongByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/song/sort/new?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
@@ -203,6 +207,12 @@ export default function collectionSongByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/song/sort/old?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);

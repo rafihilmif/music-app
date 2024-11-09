@@ -56,9 +56,12 @@ export default function Navbar() {
         if (status === 'authenticated') {
           let response;
           if (role === 'artist') {
-            response = await axios.get(
-              `${baseURL}/detail/artist?email=${session.user.email}`,
-            );
+            response = await axios.get(`${baseURL}/detail/artist`, {
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
             setNameUser(response.data.name);
             setAvatar(response.data.avatar);
           } else if (role === 'fans') {

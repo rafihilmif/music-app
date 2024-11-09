@@ -21,7 +21,6 @@ export default function index() {
   const [durations, setDurations] = useState({});
   const [totalSongs, setTotalSongs] = useState();
 
-  const [idFans, setIdFans] = useState(null);
   const [planStatus, setPlanStatus] = useState(null);
 
   const audioRef = useRef(null);
@@ -34,38 +33,25 @@ export default function index() {
   } = usePlayerStore();
 
   useEffect(() => {
-    const fetchDataFansCheck = async () => {
-      try {
-        if (status === 'authenticated' && session.user.role === 'fans') {
-          const response = await axios.get(
-            `${baseURL}/detail/fans?email=${session.user.email}`,
-          );
-          setIdFans(response.data.id_fans);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchDataFansCheck();
-  }, [status, session]);
-
-  useEffect(() => {
     const fetchDataPlan = async () => {
       if (status === 'authenticated' && session.user.role === 'fans') {
         try {
-          const response = await axios.get(
-            `${baseURL}/fans/plan/detail?id=${idFans}`,
-          );
+          const response = await axios.get(`${baseURL}/fans/plan/detail`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setPlanStatus(response.data.type);
         } catch (error) {
           console.log("You're not fans");
         }
       }
     };
-    if (idFans) {
+    if (session) {
       fetchDataPlan();
     }
-  }, [status, session, idFans]);
+  }, [status, session]);
 
   const handlePlaySong = async (song, index) => {
     if (!song) return;
@@ -108,7 +94,12 @@ export default function index() {
   useEffect(() => {
     async function fetchDataSong() {
       try {
-        const response = await axios.get(`${baseURL}/album/song?id=${id}`);
+        const response = await axios.get(`${baseURL}/album/song?id=${id}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataSong(response.data.songs);
         setSongs(response.data.songs);
         setTotalSongs(response.data.totalSongs);
@@ -117,12 +108,17 @@ export default function index() {
       }
     }
     fetchDataSong();
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     async function fetchDataAlbum() {
       try {
-        const response = await axios.get(`${baseURL}/album?id=${id}`);
+        const response = await axios.get(`${baseURL}/album?id=${id}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataAlbum(response.data);
         setNameAlbum(response.data.name);
         setNameArtist(response.data.Artist.name);
@@ -132,7 +128,7 @@ export default function index() {
       }
     }
     fetchDataAlbum();
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     if (dataSong.length > 0) {

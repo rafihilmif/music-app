@@ -19,6 +19,7 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [idOwnerPlaylist, setIdOwnerPlaylist] = useState('');
   const [idOwnerCheck, setIdOwnerCheck] = useState('');
+
   const [namePlaylist, setNamePlaylist] = useState('');
   const [imagePlaylist, setImagePlaylist] = useState('');
   const [nameOwner, setNameOwner] = useState('');
@@ -90,25 +91,34 @@ export default function Index() {
     const fetchDataPlan = async () => {
       if (status === 'authenticated' && session.user.role === 'fans') {
         try {
-          const response = await axios.get(
-            `${baseURL}/fans/plan/detail?id=${idFans}`,
-          );
+          const response = await axios.get(`${baseURL}/fans/plan/detail`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setPlanStatus(response.data.type);
         } catch (error) {
           console.log("You're not fans");
         }
       }
     };
-    if (idFans) {
+    if (session) {
       fetchDataPlan();
     }
-  }, [status, session, idFans]);
+  }, [status, session]);
 
   useEffect(() => {
     const fetchDataPlaylist = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/user/detail/playlist?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setNamePlaylist(response.data.name);
         setImagePlaylist(response.data.image);
@@ -117,22 +127,30 @@ export default function Index() {
         console.error('Error fetching data:', error);
       }
     };
-    fetchDataPlaylist();
-  }, [id]);
+    if (id) {
+      fetchDataPlaylist();
+    }
+  }, [id, session]);
 
   useEffect(() => {
     const fetchDataOwnerCheck = async () => {
       try {
         let response;
         if (session.user.role === 'artist') {
-          response = await axios.get(
-            `${baseURL}/detail/artist?email=${session.user.email}`,
-          );
+          response = await axios.get(`${baseURL}/detail/artist`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setIdOwnerCheck(response.data.id_artist);
         } else if (session.user.role === 'fans') {
-          response = await axios.get(
-            `${baseURL}/detail/fans?email=${session.user.email}`,
-          );
+          response = await axios.get(`${baseURL}/detail/fans`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setIdOwnerCheck(response.data.id_fans);
           setIdFans(response.data.id_fans);
         }
@@ -148,6 +166,12 @@ export default function Index() {
       try {
         const response = await axios.get(
           `${baseURL}/detail/owner/playlist?id=${idOwnerPlaylist}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setNameOwner(response.data.name);
         setAvatarOwner(response.data.avatar);
@@ -156,12 +180,17 @@ export default function Index() {
       }
     };
     fetchDataOwner();
-  }, [idOwnerPlaylist]);
+  }, [idOwnerPlaylist, session]);
 
   useEffect(() => {
     const fetchDataPlaylistSong = async () => {
       try {
-        const response = await axios.get(`${baseURL}/playlist/song?id=${id}`);
+        const response = await axios.get(`${baseURL}/playlist/song?id=${id}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataPlaylistSong(response.data.songs);
         setTotalSongPlaylist(response.data.totalSongs);
         setSongs(response.data.songs);
@@ -170,7 +199,7 @@ export default function Index() {
       }
     };
     fetchDataPlaylistSong();
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     if (dataPlaylistSong.length > 0) {
@@ -200,6 +229,12 @@ export default function Index() {
         try {
           const response = await axios.get(
             `${baseURL}/search/song/playlist?q=${sanitizedQuery}`,
+            {
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            },
           );
           setDataSearchSongResults(response.data);
         } catch (error) {
@@ -208,12 +243,19 @@ export default function Index() {
       }
     };
     fetchDataSearch();
-  }, [searchQuery, dataPlaylistSong]);
+  }, [searchQuery, dataPlaylistSong, session]);
 
   const handleAddSong = async (idSong) => {
     try {
       const response = await axios.post(
         `${baseURL}/user/add/song/playlist?idPlaylist=${id}&idSong=${idSong}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
       if (response.status === 201) {
         Swal.fire({
@@ -242,6 +284,12 @@ export default function Index() {
     try {
       const response = await axios.delete(
         `${baseURL}/user/playlist/song?id=${idSong}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
       if (response.status === 200) {
         Swal.fire({
@@ -265,10 +313,6 @@ export default function Index() {
       window.location.reload();
     }
   };
-
-  useEffect(() => {
-    console.log(planStatus);
-  }, [planStatus]);
 
   return (
     <>

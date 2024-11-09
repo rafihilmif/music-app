@@ -2,11 +2,13 @@ import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 
 export default function index() {
+  const { data: session, status } = useSession();
+
   const router = useRouter();
   const { name } = router.query;
 
@@ -14,48 +16,61 @@ export default function index() {
   const [dataArtistGenre, setDataArtistGenre] = useState([]);
   const [dataMerchandiseGenre, setDataMerchandiseGenre] = useState([]);
 
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchDataRecom = async () => {
       try {
-        const response = await axios.get(`${baseURL}/album/genre?name=${name}`);
+        const response = await axios.get(
+          `${baseURL}/album/genre?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
         setDataAlbumRecom(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
     if (name) {
       fetchDataRecom();
     }
-  }, [name]);
+  }, [name, session]);
 
   useEffect(() => {
     const fetchDataArtistGenre = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/genre/artist?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
-
         setDataArtistGenre(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
     if (name) {
       fetchDataArtistGenre();
     }
-  }, [name]);
+  }, [name, session]);
 
   useEffect(() => {
     const fetchDataMercGenre = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/genre/artist/merchandise?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data;
         const updatedMerchandiseData = await Promise.all(
@@ -68,14 +83,12 @@ export default function index() {
         setDataMerchandiseGenre(updatedMerchandiseData);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
     if (name) {
       fetchDataMercGenre();
     }
-  }, [name]);
+  }, [name, session]);
 
   const fetchImageData = async (id_merch) => {
     try {

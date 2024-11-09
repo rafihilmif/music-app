@@ -2,27 +2,28 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
+import { useSession } from 'next-auth/react';
 
 export default function Section() {
   const [data, setData] = useState([]);
-  const [id, setId] = useState();
-
-  const email =
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem('email'))
-      : null;
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/browse/genre`);
+        const response = await axios.get(`${baseURL}/browse/genre`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchData();
-  }, []);
+  }, [session]);
 
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';

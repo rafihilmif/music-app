@@ -5,6 +5,7 @@ import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import { getSession, useSession } from 'next-auth/react';
 import Navbar from '@/components/user/Navbar';
+import Swal from 'sweetalert2';
 
 export default function index() {
   const { data: session } = useSession();
@@ -30,9 +31,12 @@ export default function index() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/detail/fans?email=${session.user.email}`,
-        );
+        const response = await axios.get(`${baseURL}/detail/fans`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setUsername(response.data.username);
         setFirstName(response.data.first_name);
         setLastName(response.data.last_name);
@@ -85,15 +89,31 @@ export default function index() {
     }
 
     try {
-      await axios.put(`${baseURL}/account/fan?email=${email}`, data);
-      alert('Successfully updated bio', router.reload());
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        alert('Old password is incorrect. Please try again.');
-      } else {
-        console.error('Error updating profile:', error);
-        alert('Error updating profile: ' + error.message);
+      await axios.put(`${baseURL}/account/fan`, data, {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (response.status === 201) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
       }
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while add song to playlist',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
     }
   };
 

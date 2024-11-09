@@ -4,10 +4,10 @@ import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Navbar from '@/components/user/Navbar';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 
 export default function collectionAlbumByArtist() {
-  
+  const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query;
 
@@ -15,13 +15,9 @@ export default function collectionAlbumByArtist() {
   const [totalAlbum, setTotalAlbum] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [idFans, setIdFans] = useState(null);
-  const [planStatus, setPlanStatus] = useState(null);
-
   const [isLoading, setIsLoading] = useState(true);
+
   const observer = useRef();
-
-
 
   const fetchData = useCallback(
     async (page) => {
@@ -29,6 +25,12 @@ export default function collectionAlbumByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/album?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
@@ -71,6 +73,12 @@ export default function collectionAlbumByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/album?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
@@ -93,6 +101,12 @@ export default function collectionAlbumByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/album/sort/new?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
@@ -115,6 +129,12 @@ export default function collectionAlbumByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/album/sort/old?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);

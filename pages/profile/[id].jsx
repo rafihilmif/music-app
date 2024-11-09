@@ -17,10 +17,9 @@ export default function index() {
   const { data: session, status } = useSession();
   
   const [userHasLogin, setUserHasLogin] = useState('');
-  const [idUserHasLogin, setIdUserHasLogin] = useState('');
+  
   const [isFollowed, setIsFollowed] = useState(false);
   const [planStatus, setPlanStatus] = useState(null);
-  const [idFans, setIdFans] = useState(null);
 
   const [thumbnail, setThumbnail] = useState();
   const [name, setName] = useState('');
@@ -32,7 +31,7 @@ export default function index() {
   const [dataSong, setDataSong] = useState([]);
   const [dataShow, setDataShow] = useState([]);
   const [dataPlaylist, setDataPlaylist] = useState([]);
-  const [totalAlbum, setTotalAlbum] = useState();
+
   const [totalFollower, setTotalFollower] = useState();
   const [durations, setDurations] = useState({});
 
@@ -95,12 +94,13 @@ export default function index() {
             );
             setUserHasLogin(response.data.username);
           } else if (session.user.role === 'fans') {
-            response = await axios.get(
-              `${baseURL}/detail/fans?email=${session.user.email}`,
-            );
+            response = await axios.get(`${baseURL}/detail/fans`, {
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
             setUserHasLogin(response.data.username);
-            setIdUserHasLogin(response.data.id_fans);
-            setIdFans(response.data.id_fans);
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -114,24 +114,32 @@ export default function index() {
     const fetchDataPlan = async () => {
       if (status === 'authenticated' && session.user.role === 'fans') {
         try {
-          const response = await axios.get(
-            `${baseURL}/fans/plan/detail?id=${idFans}`,
-          );
+          const response = await axios.get(`${baseURL}/fans/plan/detail`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
           setPlanStatus(response.data.type);
         } catch (error) {
           console.log("You're not fans");
         }
       }
     };
-    if (idFans) {
+    if (session) {
       fetchDataPlan();
     }
-  }, [status, session, idFans]);
+  }, [status, session]);
 
   useEffect(() => {
     const fetchArtistData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/artist?id=${id}`);
+        const response = await axios.get(`${baseURL}/artist?id=${id}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setName(response.data.name);
         setUsername(response.data.username);
         setThumbnail(response.data.avatar);
@@ -142,14 +150,20 @@ export default function index() {
       }
     };
     fetchArtistData();
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     const checkIfFollowed = async () => {
       if (status === 'authenticated') {
         try {
           const response = await axios.get(
-            `${baseURL}/follow/check?idFans=${idUserHasLogin}&idArtist=${id}`,
+            `${baseURL}/follow/check?idArtist=${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            },
           );
           setIsFollowed(response.data?.isFollowed ?? false);
         } catch (error) {
@@ -159,13 +173,19 @@ export default function index() {
       }
     };
     checkIfFollowed();
-  }, [status, id, idUserHasLogin]);
+  }, [status, id, session]);
 
   useEffect(() => {
     const fetchAlbumData = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/collection/album?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataAlbum(response.data.data);
       } catch (error) {
@@ -173,7 +193,7 @@ export default function index() {
       }
     };
     fetchAlbumData();
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     const fetchDataSong = async () => {
@@ -186,7 +206,7 @@ export default function index() {
       }
     };
     fetchDataSong();
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     if (dataSong.length > 0) {
@@ -212,34 +232,56 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/shows?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataShow(response.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchShowData();
-  }, [id]);
+    if (session) {
+      fetchShowData();
+    }
+  }, [id, session]);
 
   useEffect(() => {
     const fetchPlaylistData = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/collection/playlist?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataPlaylist(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchPlaylistData();
-  }, [id]);
+    if (session) {
+      fetchPlaylistData();
+    }
+  }, [id, session]);
 
   useEffect(() => {
     const fetchMerchandiseData = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
         const updatedMerchandiseData = await Promise.all(
@@ -259,7 +301,7 @@ export default function index() {
     if (id) {
       fetchMerchandiseData();
     }
-  }, [id, baseURL]);
+  }, [id, baseURL, session]);
 
   const fetchImageData = async (id_merch) => {
     try {
@@ -276,14 +318,21 @@ export default function index() {
   useEffect(() => {
     const fetchTotalFollower = async () => {
       try {
-        const response = await axios.get(`${baseURL}/total/follower?id=${id}`);
+        const response = await axios.get(`${baseURL}/total/follower?id=${id}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setTotalFollower(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchTotalFollower();
-  }, [id]);
+    if (session) {
+      fetchTotalFollower();
+    }
+  }, [id, session]);
 
   const [hoverIndex, setHoverIndex] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
@@ -307,23 +356,36 @@ export default function index() {
   const handleFollow = async () => {
     try {
       const response = await axios.post(
-        `${baseURL}/follow?idFans=${idUserHasLogin}&idArtist=${id}`,
+        `${baseURL}/follow?idArtist=${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
-      // .then(router.reload());
+
       if (response.status === 200) {
         setIsFollowed(true);
-        // console.log(response.data.message);
-        // console.log(response.data.data);
         window.location.reload();
       }
     } catch (error) {
-      alert('Error following the artist:', error);
+      const errorMessage =
+        error.response?.data?.message || 'Error following the artist';
+      alert(errorMessage);
+      console.error('Follow error:', error);
     }
   };
   const handleUnfollow = async () => {
     try {
       const response = await axios
-        .delete(`${baseURL}/unfollow?idFans=${idUserHasLogin}&idArtist=${id}`)
+        .delete(`${baseURL}/unfollow?idArtist=${id}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
         .then(router.reload());
       if (response.data.success) {
         setIsFollowed(false);

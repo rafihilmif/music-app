@@ -31,9 +31,12 @@ export default function index() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
+        const response = await axios.get(`${baseURL}/detail/artist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setUsername(response.data.username);
         setName(response.data.name);
         setEmail(response.data.email);
@@ -67,17 +70,21 @@ export default function index() {
   useEffect(() => {
     const fetchDataGenre = async () => {
       try {
-        const response = await axios.get(`${baseURL}/genre?name=${genre}`);
+        const response = await axios.get(`${baseURL}/genre?name=${genre}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataGenre(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
     if (genre) {
       fetchDataGenre();
     }
-  }, [genre]);
+  }, [genre, session]);
 
   const handleUpdate = async () => {
     const data = new FormData();
@@ -100,10 +107,12 @@ export default function index() {
     }
 
     try {
-      const response = await axios.put(
-        `${baseURL}/account/artist?email=${email}`,
-        data,
-      );
+      const response = await axios.put(`${baseURL}/account/artist`, data, {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       if (response.status === 200) {
         Swal.fire({
           icon: 'success',

@@ -1,20 +1,16 @@
 import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect } from 'react';
-import { MusicNote, LocalMall } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-import Player from '@/components/user/Player';
 import Link from 'next/link';
 
 export default function MainLayoutFans() {
   const router = useRouter();
-  const { data: session, status } = useSession();
-  const [id, setId] = useState('');
+  const { data: session } = useSession();
   const [userName, setUserName] = useState();
-  const [token, setToken] = useState();
 
   const [dataArtistFollowed, setDataArtistFollowed] = useState([]);
   const [dataPlaylist, setDataPlaylist] = useState([]);
@@ -22,33 +18,24 @@ export default function MainLayoutFans() {
   const [dataRandomPlaylist, setDataRandomPlaylist] = useState([]);
   const [dataRandomMerchandise, setDataRandomMerchandise] = useState([]);
 
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (session?.accessToken) {
-      setToken(session.accessToken);
-    }
-  }, [session]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${baseURL}/detail/fans`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',
           },
         });
-        setId(response.data.id_fans);
         setUserName(response.data.username);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (token) {
+    if (session) {
       fetchData();
     }
-  }, [token]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataArtistFollowed = async () => {
@@ -72,47 +59,67 @@ export default function MainLayoutFans() {
   useEffect(() => {
     const fetchDataPlaylist = async () => {
       try {
-        const response = await axios.get(`${baseURL}/user/playlist?id=${id}`);
+        const response = await axios.get(`${baseURL}/user/playlist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataPlaylist(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataPlaylist();
     }
-  }, [id]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataRandomPlaylist = async () => {
       try {
-        const response = await axios.get(`${baseURL}/playlist?id=${id}`);
+        const response = await axios.get(`${baseURL}/playlist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataRandomPlaylist(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataRandomPlaylist();
     }
-  }, [id]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataRandomArtist = async () => {
       try {
-        const response = await axios.get(`${baseURL}/artists`);
+        const response = await axios.get(`${baseURL}/artists`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataRandomArtist(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchDataRandomArtist();
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataRandomMerch = async () => {
       try {
-        const response = await axios.get(`${baseURL}/merchandises`);
+        const response = await axios.get(`${baseURL}/merchandises`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
         const merchandiseData = response.data;
 
@@ -127,12 +134,10 @@ export default function MainLayoutFans() {
         setDataRandomMerchandise(updatedMerchandiseData);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchDataRandomMerch();
-  }, []);
+  }, [session]);
 
   const fetchImageData = async (id_merch) => {
     try {

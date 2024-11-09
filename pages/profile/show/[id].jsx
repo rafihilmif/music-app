@@ -5,9 +5,10 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 
 export default function collectionShowByArtist() {
+  const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query;
 
@@ -24,6 +25,12 @@ export default function collectionShowByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/shows?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
@@ -66,6 +73,12 @@ export default function collectionShowByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/shows?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
@@ -88,6 +101,12 @@ export default function collectionShowByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/shows/sort/upcoming?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setData((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);

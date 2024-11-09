@@ -12,7 +12,7 @@ export default function index() {
   const { data: session, status } = useSession();
 
   const [dataAlbum, setDataAlbum] = useState([]);
-  const [id, setId] = useState();
+
   const [totalAlbum, setTotalAlbum] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +24,13 @@ export default function index() {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album?id=${id}&page=${page}`,
+          `${baseURL}/artist/collection/album?page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
@@ -36,28 +42,14 @@ export default function index() {
         }, 2000);
       }
     },
-    [id],
+    [session],
   );
 
   useEffect(() => {
-    const fetchArtistData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setId(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchArtistData();
-  }, [session]);
-
-  useEffect(() => {
-    if (id) {
+    if (session) {
       fetchData(currentPage);
     }
-  }, [id, currentPage, fetchData]);
+  }, [session, currentPage, fetchData]);
 
   const lastElementRef = useCallback(
     (node) => {
@@ -80,7 +72,13 @@ export default function index() {
       setDataAlbum([]);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album?id=${id}&page=${page}`,
+          `${baseURL}/artist/collection/album?page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
@@ -92,7 +90,7 @@ export default function index() {
         }, 2000);
       }
     },
-    [id],
+    [session],
   );
 
   const handleFilterNew = useCallback(
@@ -102,7 +100,13 @@ export default function index() {
       setDataAlbum([]);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album/sort/new?id=${id}&page=${page}`,
+          `${baseURL}/artist/collection/album/sort/new?page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
@@ -114,7 +118,7 @@ export default function index() {
         }, 2000);
       }
     },
-    [id],
+    [session],
   );
 
   const handleFilterOld = useCallback(
@@ -124,7 +128,13 @@ export default function index() {
       setDataAlbum([]);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album/sort/old?id=${id}&page=${page}`,
+          `${baseURL}/artist/collection/album/sort/old?page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataAlbum((prevData) => [...prevData, ...response.data.data]);
         setTotalAlbum(response.data.total);
@@ -136,7 +146,7 @@ export default function index() {
         }, 2000);
       }
     },
-    [id],
+    [session],
   );
 
   const handleDeleteAlbum = async (idAlbum) => {
@@ -153,6 +163,12 @@ export default function index() {
       if (result.isConfirmed) {
         const response = await axios.delete(
           `${baseURL}/artist/album/delete?id=${idAlbum}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         await Swal.fire({
           title: 'Deleted!',

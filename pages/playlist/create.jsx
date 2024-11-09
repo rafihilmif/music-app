@@ -9,37 +9,12 @@ export default function create() {
   const { data: session, status } = useSession();
 
   const router = useRouter();
-  const [id, setId] = useState();
 
   const [name, setName] = useState('');
 
   const [image, setImage] = useState(null);
 
   const [createObjectURL, setCreateObjectURL] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (status === 'authenticated') {
-        try {
-          let response;
-          if (session.user.role === 'artist') {
-            response = await axios.get(
-              `${baseURL}/detail/artist?email=${session.user.email}`,
-            );
-            setId(response.data.id_artist);
-          } else if (session.user.role === 'fans') {
-            response = await axios.get(
-              `${baseURL}/detail/fans?email=${session.user.email}`,
-            );
-            setId(response.data.id_fans);
-          }
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      }
-    };
-    fetchData();
-  }, [status, session]);
 
   const uploadToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -56,10 +31,12 @@ export default function create() {
     formData.append('name', name);
 
     try {
-      const response = await axios.post(
-        `${baseURL}/playlist/add?id=${id}`,
-        formData,
-      );
+      const response = await axios.post(`${baseURL}/playlist/add`, formData, {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       if (response.status === 201) {
         Swal.fire({
           icon: 'success',
@@ -67,8 +44,6 @@ export default function create() {
           text: response.data.message,
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.reload();
         });
       }
     } catch (error) {

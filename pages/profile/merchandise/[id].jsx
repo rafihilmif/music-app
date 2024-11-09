@@ -4,10 +4,12 @@ import Navbar from '@/components/user/Navbar';
 import axios from 'axios';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function collectionMerchByArtist() {
+  const { data: session } = useSession();
+
   const router = useRouter();
   const { id } = router.query;
 
@@ -36,6 +38,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -87,6 +95,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -109,6 +123,7 @@ export default function collectionMerchByArtist() {
     },
     [id],
   );
+
   const handleFilterTshirt = useCallback(
     async (page) => {
       setIsLoading(true);
@@ -117,6 +132,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise/sort/tshirt?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -139,6 +160,7 @@ export default function collectionMerchByArtist() {
     },
     [id],
   );
+
   const handleFilterLongsleeve = useCallback(
     async (page) => {
       setIsLoading(true);
@@ -147,6 +169,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise/sort/longsleeve?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -177,6 +205,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise/sort/zipper?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -207,6 +241,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise/sort/hoodie?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -237,6 +277,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise/sort/sweatshirt?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -268,6 +314,12 @@ export default function collectionMerchByArtist() {
       try {
         const response = await axios.get(
           `${baseURL}/collection/merchandise/sort/accessories?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 

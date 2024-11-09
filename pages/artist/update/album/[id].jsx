@@ -3,11 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clear } from '@mui/icons-material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 
 export default function index() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { id } = router.query;
 
@@ -30,6 +31,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/detail/album?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setOldName(response.data.name);
         setOldDesc(response.data.description);
@@ -45,7 +52,7 @@ export default function index() {
     if (id) {
       fetchData();
     }
-  }, [id]);
+  }, [id, session]);
 
   const uploadImageToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -94,7 +101,12 @@ export default function index() {
     data.append('image', newImage);
 
     try {
-      await axios.put(`${baseURL}/artist/album/update?id=${id}`, data);
+      await axios.put(`${baseURL}/artist/album/update?id=${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       alert('Successfully updated album', router.reload());
     } catch (error) {
       console.error('Error updating show:', error);

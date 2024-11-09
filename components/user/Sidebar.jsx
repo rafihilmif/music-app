@@ -47,9 +47,12 @@ export default function Sidebar() {
         try {
           let response;
           if (session.user.role === 'artist') {
-            response = await axios.get(
-              `${baseURL}/detail/artist?email=${session.user.email}`,
-            );
+            response = await axios.get(`${baseURL}/detail/artist`, {
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
             setId(response.data.id_artist);
           } else if (session.user.role === 'fans') {
             const response = await axios.get(`${baseURL}/detail/fans`, {
@@ -71,14 +74,21 @@ export default function Sidebar() {
   useEffect(() => {
     const fetchDataPlaylist = async () => {
       try {
-        const response = await axios.get(`${baseURL}/user/playlist?id=${id}`);
+        const response = await axios.get(`${baseURL}/user/playlist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataPlaylist(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchDataPlaylist();
-  }, [id]);
+    if (session) {
+      fetchDataPlaylist();
+    }
+  }, [session]);
 
   const handleDeletePlaylist = async (idPlaylist) => {
     try {
@@ -94,6 +104,12 @@ export default function Sidebar() {
       if (result.isConfirmed) {
         const response = await axios.delete(
           `${baseURL}/user/playlist?id=${idPlaylist}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         await Swal.fire({
           title: 'Deleted!',

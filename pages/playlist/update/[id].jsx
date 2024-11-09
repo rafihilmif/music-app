@@ -5,9 +5,11 @@ import { useRouter } from 'next/router';
 import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
+import Swal from 'sweetalert2';
 
 export default function create() {
   const router = useRouter();
+  const { data: session } = useSession();
   const { id } = router.query;
 
   const [oldName, setOldName] = useState('');
@@ -32,6 +34,12 @@ export default function create() {
       try {
         const response = await axios.get(
           `${baseURL}/user/detail/playlist?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setOldName(response.data.name);
         setOldImage(response.data.image);
@@ -39,8 +47,10 @@ export default function create() {
         console.error('Error fetching data:', error);
       }
     };
-    fetchDataPlaylist();
-  }, []);
+    if (id) {
+      fetchDataPlaylist();
+    }
+  }, [session, id]);
 
   const updateField = (field, value) => {
     setFormData({
@@ -49,7 +59,7 @@ export default function create() {
     });
   };
 
-  const handleUpload = async () => {
+  const handleUpdate = async () => {
     const data = new FormData();
 
     Object.keys(formData).forEach((key) => {
@@ -58,20 +68,33 @@ export default function create() {
     data.append('image', newImage);
 
     try {
-      await axios
-        .put(`${baseURL}/user/update/playlist?id=${id}`, data)
-        .then(alert('berhasil update playlist'));
-    } catch (error) {
-      if (error.response) {
-        alert(
-          'Terjadi kesalahan saat mengunggah file: ' +
-            error.response.data.message,
-        );
-      } else if (error.request) {
-        alert('Terjadi kesalahan saat mengirim permintaan ke server.');
-      } else {
-        alert('Terjadi kesalahan: ' + error.message);
+      const response = await axios.put(
+        `${baseURL}/user/update/playlist?id=${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        });
       }
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while add the playlist',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
     }
   };
 
@@ -80,7 +103,7 @@ export default function create() {
       <Navbar />
       <div className="mt-10 h-auto w-full overflow-hidden rounded-lg bg-transparent">
         <h1 className="mb-4 text-3xl font-bold">Create new Playlist</h1>
-        <form className="mb-2 w-full" onSubmit={handleUpload}>
+        <form className="mb-2 w-full" onSubmit={handleUpdate}>
           <div className="h-full w-full rounded-lg border p-6 shadow-md md:mt-0">
             <div className="w-full border px-4">
               <div className="flex flex-col border-b py-4 sm:flex-row sm:items-start">

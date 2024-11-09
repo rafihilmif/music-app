@@ -12,7 +12,6 @@ export default function index() {
 
   const [genre, setGenre] = useState();
   const [userName, setUserName] = useState();
-  const [id, setId] = useState();
 
   const [discoverArtist, setDiscoverArtist] = useState([]);
   const [dataRandomPlaylist, setDataRandomPlaylist] = useState([]);
@@ -26,12 +25,14 @@ export default function index() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
+        const response = await axios.get(`${baseURL}/detail/artist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setGenre(response.data.genre);
         setUserName(response.data.username);
-        setId(response.data.id_artist);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -45,7 +46,13 @@ export default function index() {
     const fetchDataDiscoverArtist = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/discover/artist/genre?id=${id}&name=${genre}`,
+          `${baseURL}/discover/artist/genre?name=${genre}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDiscoverArtist(response.data);
       } catch (error) {
@@ -55,43 +62,57 @@ export default function index() {
     if (session) {
       fetchDataDiscoverArtist();
     }
-  }, [id, genre]);
+  }, [session, genre]);
 
   useEffect(() => {
     const fetchDataRandomPlaylist = async () => {
       try {
-        const response = await axios.get(`${baseURL}/playlist?id=${id}`);
+        const response = await axios.get(`${baseURL}/playlist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataRandomPlaylist(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataRandomPlaylist();
     }
-  }, [id]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataAlbum = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/discover/artist/album?id=${id}`,
-        );
+        const response = await axios.get(`${baseURL}/discover/artist/album`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataRandomAlbum(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataAlbum();
     }
-  }, [id]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataRandomMerch = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/discover/artist/merchandise?id=${id}`,
+          `${baseURL}/discover/artist/merchandise?`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data;
         const updatedMerchandiseData = await Promise.all(
@@ -109,21 +130,26 @@ export default function index() {
       }
     };
     fetchDataRandomMerch();
-  }, [id]);
+  }, [session]);
 
   useEffect(() => {
     const fetchDataPlaylist = async () => {
       try {
-        const response = await axios.get(`${baseURL}/user/playlist?id=${id}`);
+        const response = await axios.get(`${baseURL}/user/playlist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataPlaylist(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataPlaylist();
     }
-  }, [id]);
+  }, [session]);
 
   const fetchImageData = async (id_merch) => {
     try {

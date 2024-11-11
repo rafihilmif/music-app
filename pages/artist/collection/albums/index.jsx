@@ -12,19 +12,36 @@ export default function index() {
   const { data: session, status } = useSession();
 
   const [dataAlbum, setDataAlbum] = useState([]);
-
+  const [id, setId] = useState();
   const [totalAlbum, setTotalAlbum] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const observer = useRef();
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
+  useEffect(() => {
+    const fetchArtistData = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/detail/artist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        setId(response.data.id_artist);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchArtistData();
+  }, [session]);
+
   const fetchData = useCallback(
     async (page) => {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album?page=${page}`,
+          `${baseURL}/artist/collection/album?id=${id}&page=${page}`,
           {
             headers: {
               Authorization: `Bearer ${session.accessToken}`,
@@ -42,14 +59,14 @@ export default function index() {
         }, 2000);
       }
     },
-    [session],
+    [id],
   );
 
   useEffect(() => {
-    if (session) {
+    if (id) {
       fetchData(currentPage);
     }
-  }, [session, currentPage, fetchData]);
+  }, [id, currentPage, fetchData]);
 
   const lastElementRef = useCallback(
     (node) => {
@@ -72,7 +89,7 @@ export default function index() {
       setDataAlbum([]);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album?page=${page}`,
+          `${baseURL}/artist/collection/album?id=${id}page=${page}`,
           {
             headers: {
               Authorization: `Bearer ${session.accessToken}`,
@@ -90,7 +107,7 @@ export default function index() {
         }, 2000);
       }
     },
-    [session],
+    [id],
   );
 
   const handleFilterNew = useCallback(
@@ -100,7 +117,7 @@ export default function index() {
       setDataAlbum([]);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album/sort/new?page=${page}`,
+          `${baseURL}/artist/collection/album/sort/new?id=${id}&page=${page}`,
           {
             headers: {
               Authorization: `Bearer ${session.accessToken}`,
@@ -118,7 +135,7 @@ export default function index() {
         }, 2000);
       }
     },
-    [session],
+    [id],
   );
 
   const handleFilterOld = useCallback(
@@ -128,7 +145,7 @@ export default function index() {
       setDataAlbum([]);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/album/sort/old?page=${page}`,
+          `${baseURL}/artist/collection/album/sort/old?id=${id}&page=${page}`,
           {
             headers: {
               Authorization: `Bearer ${session.accessToken}`,

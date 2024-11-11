@@ -38,25 +38,18 @@ export default function index() {
   const checkboxRef = useRef(null);
   const [isChecked, setIsChecked] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setIdArtist(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, [session]);
 
   useEffect(() => {
     const fetchDataAlbum = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/artist/album?id=${idArtist}&name=${OldAlbum}`,
+          `${baseURL}/artist/album?name=${OldAlbum}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          },
         );
         setDataAlbum(response.data);
         setLoading(false);
@@ -74,6 +67,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/detail/song?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          },
         );
         console.log(response.data.name);
         setOldName(response.data.name);
@@ -101,7 +100,12 @@ export default function index() {
   useEffect(() => {
     const fetchDataGenre = async () => {
       try {
-        const response = await axios.get(`${baseURL}/genre?name=${OldGenre}`);
+        const response = await axios.get(`${baseURL}/genre?name=${OldGenre}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         setDataGenre(response.data);
         setLoading(false);
       } catch (error) {
@@ -168,6 +172,12 @@ export default function index() {
       const response = await axios.put(
         `${baseURL}/artist/song/update?id=${id}`,
         data,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        },
       );
       if (response.status === 200) {
         Swal.fire({

@@ -85,10 +85,14 @@ export default function create() {
           text: response.data.message,
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+          // console.log(response.data.message);
+          // console.log(response.data.data);
         });
       }
     } catch (error) {
-      await Swal.fire({
+      Swal.fire({
         icon: 'error',
         title: 'Error',
         text: 'An error occurred while add the playlist',
@@ -103,7 +107,7 @@ export default function create() {
       <Navbar />
       <div className="mt-10 h-auto w-full overflow-hidden rounded-lg bg-transparent">
         <h1 className="mb-4 text-3xl font-bold">Create new Playlist</h1>
-        <form className="mb-2 w-full" onSubmit={handleUpdate}>
+        <div className="mb-2 w-full">
           <div className="h-full w-full rounded-lg border p-6 shadow-md md:mt-0">
             <div className="w-full border px-4">
               <div className="flex flex-col border-b py-4 sm:flex-row sm:items-start">
@@ -168,13 +172,14 @@ export default function create() {
               </div>
             </div>
             <button
-              type="submit"
+              type="button"
+              onClick={handleUpdate}
               className="active:bg-primary-700  mt-4 inline-block w-full rounded bg-purple-500 px-6 pb-2  pt-2.5 text-xs font-medium uppercase leading-normal text-white hover:bg-purple-700 focus:bg-purple-600"
             >
               Update
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </>
   );

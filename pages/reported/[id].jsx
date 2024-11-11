@@ -7,37 +7,12 @@ import { baseURL } from '@/baseURL';
 import Swal from 'sweetalert2';
 
 export default function index() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query;
-  const [idUser, setIdUser] = useState();
 
   const [comment, setComment] = useState('');
   const [category, setCategory] = useState('');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (status === 'authenticated' && session.user.email) {
-        try {
-          let response;
-          if (session.user.role === 'artist') {
-            response = await axios.get(
-              `${baseURL}/detail/artist?email=${session.user.email}`,
-            );
-            setIdUser(response.data.id_artist);
-          } else if (session.user.role === 'fans') {
-            response = await axios.get(
-              `${baseURL}/detail/fans?email=${session.user.email}`,
-            );
-            setIdUser(response.data.id_fans);
-          }
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      }
-    };
-    fetchData();
-  }, [status, session]);
 
   const handleSubmit = async () => {
     const data = new FormData();
@@ -46,10 +21,11 @@ export default function index() {
 
     try {
       const response = await axios.post(
-        `${baseURL}/reported?idUser=${idUser}&&idArtist=${id}`,
+        `${baseURL}/reported?idArtist=${id}`,
         data,
         {
           headers: {
+            Authorization: `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',
           },
         },
@@ -68,7 +44,13 @@ export default function index() {
         });
       }
     } catch (error) {
-      alert('Terjadi kesalahan: ' + error.message);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while send reported',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3085d6',
+      });
     }
   };
   return (

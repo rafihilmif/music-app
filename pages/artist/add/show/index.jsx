@@ -329,7 +329,6 @@ export default function index() {
 
   const { data: session } = useSession();
   const router = useRouter();
-  const [id, setId] = useState();
 
   const [name, setName] = useState('');
   const [date, setDate] = useState();
@@ -366,22 +365,6 @@ export default function index() {
     setStateCities(citiesByState[selectedProvince] || []);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setId(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
-
   const uploadImageToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
@@ -416,8 +399,14 @@ export default function index() {
 
     try {
       const response = await axios.post(
-        `${baseURL}/artist/shows/add?id=${id}`,
+        `${baseURL}/artist/shows/add`,
         formData,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        },
         {
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
@@ -455,6 +444,7 @@ export default function index() {
       }
     }
   };
+
   return (
     <>
       <Navbar />

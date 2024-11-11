@@ -64,7 +64,8 @@ export default function Navbar() {
             });
             setNameUser(response.data.name);
             setAvatar(response.data.avatar);
-          } else if (role === 'fans') {
+          }
+          if (role === 'fans') {
             const response = await axios.get(`${baseURL}/detail/fans`, {
               headers: {
                 Authorization: `Bearer ${session.accessToken}`,

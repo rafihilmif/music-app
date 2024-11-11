@@ -3,11 +3,14 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import React, { useState, useEffect, useRef } from 'react';
 import { Clear } from '@mui/icons-material';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
+import Swal from 'sweetalert2';
 
 export default function index() {
+  const { data: session, status } = useSession();
+
   const router = useRouter();
   const { id } = router.query;
 
@@ -31,7 +34,12 @@ export default function index() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/detail/show?id=${id}`);
+        const response = await axios.get(`${baseURL}/detail/show?id=${id}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         setOldName(response.data.name);
         setOldDesc(response.data.description);
         setOldLocation(response.data.location);
@@ -48,7 +56,7 @@ export default function index() {
     if (id) {
       fetchData();
     }
-  }, [id]);
+  }, [id, session]);
 
   const uploadImageToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -90,8 +98,29 @@ export default function index() {
     data.append('image', newImage);
 
     try {
-      await axios.put(`${baseURL}/artist/show/update?id=${id}`, data);
-      alert('Successfully updated show', router.reload());
+      const response = await axios.put(
+        `${baseURL}/artist/show/update?id=${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+          // console.log(response.data.message);
+          // console.log(response.data.data);
+        });
+      }
     } catch (error) {
       console.error('Error updating show:', error);
       alert('Error updating show: ' + error.message);

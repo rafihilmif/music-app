@@ -56,6 +56,12 @@ export default function detailMerchById() {
     try {
       const response = await axios.get(
         `${baseURL}/artist/image/merchandise?id=${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
       return response.data;
     } catch (error) {
@@ -69,6 +75,12 @@ export default function detailMerchById() {
       try {
         const response = await axios.get(
           `${baseURL}/detail/merchandise?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setName(response.data.name);
         setPrice(response.data.price);
@@ -87,13 +99,19 @@ export default function detailMerchById() {
     if (id) {
       fetchMerchandiseData();
     }
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     const fetchRelatedMerchandise = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/related/merchandise?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
 
         const relatedMerchWithImages = await Promise.all(
@@ -113,7 +131,7 @@ export default function detailMerchById() {
     if (id) {
       fetchRelatedMerchandise();
     }
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     if (image.length > 0) {

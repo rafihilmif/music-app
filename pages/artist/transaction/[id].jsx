@@ -2,10 +2,12 @@ import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 export default function orderById() {
+  const { data: session } = useSession();
+
   const router = useRouter();
   const { id } = router.query;
 
@@ -23,6 +25,12 @@ export default function orderById() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/detail/transaction?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setTransactionDate(response.data.created_at);
         setTransactionStatus(response.data.status);
@@ -37,13 +45,19 @@ export default function orderById() {
     if (id) {
       fetchDataDetailTransaction();
     }
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     const fetchDataItemTransaction = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/artist/item/transaction?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataItemTransaction(response.data);
       } catch (error) {
@@ -53,7 +67,7 @@ export default function orderById() {
     if (id) {
       fetchDataItemTransaction();
     }
-  }, [id]);
+  }, [id, session]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {

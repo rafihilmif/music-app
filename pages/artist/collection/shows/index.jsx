@@ -25,6 +25,12 @@ export default function () {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/shows?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataShow((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
@@ -42,9 +48,12 @@ export default function () {
   useEffect(() => {
     const fetchArtistData = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
+        const response = await axios.get(`${baseURL}/detail/artist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setId(response.data.id_artist);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -81,6 +90,12 @@ export default function () {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/shows?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataShow((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
@@ -103,6 +118,12 @@ export default function () {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/shows/sort/upcoming?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataShow((prevData) => [...prevData, ...response.data.data]);
         setTotalShows(response.data.total);
@@ -133,6 +154,12 @@ export default function () {
       if (result.isConfirmed) {
         const response = await axios.delete(
           `${baseURL}/artist/show/delete?id=${idShow}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         await Swal.fire({
           title: 'Deleted!',

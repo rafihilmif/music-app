@@ -17,27 +17,18 @@ export default function index() {
   const [timeFilter, setTimeFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setId(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
 
   useEffect(() => {
     const fetchDataOrderTransaction = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/artist/transaction?id=${id}&page=${currentPage}&timeFilter=${timeFilter}`,
+          `${baseURL}/artist/transaction?page=${currentPage}&timeFilter=${timeFilter}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataOrderTransaction(response.data.data);
         setTotalTransaction(response.data.total);
@@ -45,10 +36,10 @@ export default function index() {
         console.error('Error fetching data:', error);
       }
     };
-    if (id) {
+    if (session) {
       fetchDataOrderTransaction();
     }
-  }, [id, timeFilter, currentPage]);
+  }, [session, timeFilter, currentPage]);
 
   const handleDurationChange = (event) => {
     setTimeFilter(event.target.value);

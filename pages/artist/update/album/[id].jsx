@@ -1,14 +1,14 @@
 import Navbar from '@/components/user/Navbar';
 import React, { useState, useEffect, useRef } from 'react';
-import { Clear } from '@mui/icons-material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
+import Swal from 'sweetalert2';
 
 export default function index() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query;
 
@@ -101,13 +101,28 @@ export default function index() {
     data.append('image', newImage);
 
     try {
-      await axios.put(`${baseURL}/artist/album/update?id=${id}`, data, {
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-          'Content-Type': 'multipart/form-data',
+      const response = await axios.put(
+        `${baseURL}/artist/album/update?id=${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
         },
-      });
-      alert('Successfully updated album', router.reload());
+      );
+
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.data.message,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          window.location.reload();
+        });
+      }
     } catch (error) {
       console.error('Error updating show:', error);
       alert('Error updating show: ' + error.message);

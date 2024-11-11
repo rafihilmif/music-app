@@ -3,11 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clear } from '@mui/icons-material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import Swal from 'sweetalert2';
 export default function index() {
+  const { data: session, status } = useSession();
+
   const router = useRouter();
   const { id } = router.query;
 
@@ -35,10 +37,20 @@ export default function index() {
 
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
+  useEffect(() => {
+    console.log(session);
+  }, [session]);
+
   const fetchImageData = async (id) => {
     try {
       const response = await axios.get(
         `${baseURL}/artist/image/merchandise?id=${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
       return response.data;
     } catch (error) {
@@ -49,22 +61,37 @@ export default function index() {
 
   useEffect(() => {
     const fetchDataCategory = async () => {
-      await axios
-        .get(`${baseURL}/category?name=${OldCategory}`)
-        .then((res) => {
-          setDataCategory(res.data);
-          setLoading(false);
-        })
-        .catch((err) => console.error('error' + err));
+      try {
+        const response = await axios.get(
+          `${baseURL}/category?name=${OldCategory}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        setDataCategory(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     };
-    fetchDataCategory();
-  }, [OldCategory]);
+    if (OldCategory) {
+      fetchDataCategory();
+    }
+  }, [OldCategory, session]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/detail/merchandise?id=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setOldName(response.data.name);
         setOldDesc(response.data.description);
@@ -89,7 +116,7 @@ export default function index() {
     if (id) {
       fetchData();
     }
-  }, [id, loading]);
+  }, [id, session]);
 
   const uploadImageToClient = (event, index) => {
     const file = event.target.files[0];
@@ -142,6 +169,7 @@ export default function index() {
         data,
         {
           headers: {
+            Authorization: `Bearer ${session.accessToken}`,
             'Content-Type': 'multipart/form-data',
           },
         },

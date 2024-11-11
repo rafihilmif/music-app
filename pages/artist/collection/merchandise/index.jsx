@@ -9,11 +9,10 @@ import { getSession, useSession } from 'next-auth/react';
 import Swal from 'sweetalert2';
 
 export default function index() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const [dataMerchandise, setDataMerchandise] = useState([]);
   const [id, setId] = useState();
-  const [sort, setSort] = useState();
   const [totalMerchandise, setTotalMerchandise] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,10 +20,33 @@ export default function index() {
   const observer = useRef();
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
+  useEffect(() => {
+    const fetchArtistData = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/detail/artist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        setId(response.data.id_artist);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchArtistData();
+  }, [session]);
+
   const fetchImageData = async (id) => {
     try {
       const response = await axios.get(
         `${baseURL}/artist/image/merchandise?id=${id}&number=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
       return response.data;
     } catch (error) {
@@ -38,7 +60,13 @@ export default function index() {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `${baseURL}/artist/collection/merchandise?id=${id}&page=${page}&sort=${''}`,
+          `${baseURL}/artist/collection/merchandise?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -64,20 +92,6 @@ export default function index() {
     },
     [id],
   );
-
-  useEffect(() => {
-    const fetchArtistData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setId(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchArtistData();
-  }, [session]);
 
   useEffect(() => {
     if (id) {
@@ -110,6 +124,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -135,6 +155,7 @@ export default function index() {
     },
     [id],
   );
+
   const handleFilterTshirt = useCallback(
     async (page) => {
       setIsLoading(true);
@@ -143,6 +164,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/tshirt?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -168,6 +195,7 @@ export default function index() {
     },
     [id],
   );
+
   const handleFilterLongsleeve = useCallback(
     async (page) => {
       setIsLoading(true);
@@ -176,6 +204,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/longsleeve?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -201,6 +235,7 @@ export default function index() {
     },
     [id],
   );
+
   const handleFilterZipper = useCallback(
     async (page) => {
       setIsLoading(true);
@@ -209,6 +244,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/zipper?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -234,6 +275,7 @@ export default function index() {
     },
     [id],
   );
+
   const handleFilterHoodie = useCallback(
     async (page) => {
       setIsLoading(true);
@@ -242,6 +284,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/hoodie?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -267,6 +315,7 @@ export default function index() {
     },
     [id],
   );
+
   const handleFilterSweatshirt = useCallback(
     async (page) => {
       setIsLoading(true);
@@ -275,6 +324,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/sweatshirt?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -309,6 +364,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/merchandise/sort/accessories?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         const merchandiseData = response.data.data;
 
@@ -349,6 +410,12 @@ export default function index() {
       if (result.isConfirmed) {
         const response = await axios.delete(
           `${baseURL}/artist/merchandise/delete?id=${idMerch}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         await Swal.fire({
           title: 'Deleted!',
@@ -369,6 +436,7 @@ export default function index() {
       window.location.reload();
     }
   };
+  
   return (
     <>
       <Navbar />

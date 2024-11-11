@@ -25,6 +25,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/song?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataSong((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
@@ -42,15 +48,20 @@ export default function index() {
   useEffect(() => {
     const fetchArtistData = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
+        const response = await axios.get(`${baseURL}/detail/artist`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setId(response.data.id_artist);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchArtistData();
+    if (session) {
+      fetchArtistData();
+    }
   }, [session]);
 
   useEffect(() => {
@@ -81,6 +92,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/song?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataSong((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
@@ -103,6 +120,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/song/sort/new?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataSong((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
@@ -125,6 +148,12 @@ export default function index() {
       try {
         const response = await axios.get(
           `${baseURL}/artist/collection/song/sort/old?id=${id}&page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataSong((prevData) => [...prevData, ...response.data.data]);
         setTotalSong(response.data.total);
@@ -153,6 +182,12 @@ export default function index() {
       if (result.isConfirmed) {
         const response = await axios.delete(
           `${baseURL}/artist/song/delete?id=${idSong}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         await Swal.fire({
           title: 'Deleted!',

@@ -15,7 +15,6 @@ export default function index() {
 
   const [dataCategory, setDataCategory] = useState([]);
 
-  const [artist, setArtist] = useState('');
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState([]);
@@ -38,21 +37,6 @@ export default function index() {
       setIsChecked(checkboxRef.current.checked);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setId(response.data.id_artist);
-        setArtist(response.data.name);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, [session]);
 
   const uploadImageToClient = (event) => {
     const newFiles = Array.from(event.target.files);
@@ -78,14 +62,19 @@ export default function index() {
   useEffect(() => {
     const fetchDataCategory = async () => {
       try {
-        const response = await axios.get(`${baseURL}/category`);
+        const response = await axios.get(`${baseURL}/category`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setDataCategory(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchDataCategory();
-  }, []);
+  }, [session]);
 
   const removeImage = (index) => {
     const newImages = image.filter((_, i) => i !== index);
@@ -95,7 +84,6 @@ export default function index() {
   const handleUploadMerchandise = async () => {
     const formData = new FormData();
     formData.append('name', name);
-    formData.append('artist', artist);
     formData.append('category', category);
     formData.append('price', price);
     formData.append('description', desc);
@@ -128,15 +116,19 @@ export default function index() {
 
     try {
       const response = await axios.post(
-        `${baseURL}/artist/merchandise/add?id=${id}`,
+        `${baseURL}/artist/merchandise/add`,
         formData,
+        {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        },
         {
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total,
             );
-
-            // Update progress for all files since we're uploading them together
             setUploadProgress((prevProgress) => {
               const newProgress = {};
               image.forEach((file) => {

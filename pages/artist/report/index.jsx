@@ -7,9 +7,8 @@ import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import { getSession, useSession } from 'next-auth/react';
 export default function index() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
-  const [idArtist, setIdArtist] = useState(null);
   const [totalFollower, setTotalFollower] = useState(null);
   const [totalMerch, setTotalMerch] = useState(null);
   const [totalRevenue, setTotalRevenue] = useState(null);
@@ -18,90 +17,105 @@ export default function index() {
   const [salesData, setSalesData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseURL}/detail/artist?email=${session.user.email}`,
-        );
-        setIdArtist(response.data.id_artist);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
-
-  useEffect(() => {
     const fetchTotalFollower = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/total/follower?id=${idArtist}`,
-        );
+        const response = await axios.get(`${baseURL}/artist/total/follower`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setTotalFollower(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchTotalFollower();
-  }, [idArtist]);
+    if (session) {
+      fetchTotalFollower();
+    }
+  }, [session]);
 
   useEffect(() => {
     const fetchTotalMerch = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/artist/total/merchadise?id=${idArtist}`,
-        );
+        const response = await axios.get(`${baseURL}/artist/total/merchadise`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setTotalMerch(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchTotalMerch();
-  }, [idArtist]);
+    if (session) {
+      fetchTotalMerch();
+    }
+  }, [session]);
 
   useEffect(() => {
     const fetchTotalRevenue = async () => {
       try {
-        const response = await axios.get(
-          `${baseURL}/artist/total/revenue?id=${idArtist}`,
-        );
+        const response = await axios.get(`${baseURL}/artist/total/revenue`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
         setTotalRevenue(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchTotalRevenue();
-  }, [idArtist]);
+    if (session) {
+      fetchTotalRevenue();
+    }
+  }, [session]);
 
   useEffect(() => {
     const fetchTotalMerchSales = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/artist/total/merchandise/sales?id=${idArtist}`,
+          `${baseURL}/artist/total/merchandise/sales`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setTotalMerchSales(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchTotalMerchSales();
-  }, [idArtist]);
+    if (session) {
+      fetchTotalMerchSales();
+    }
+  }, [session]);
 
   useEffect(() => {
     const fetchSalesData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}/artist/merchandise/sales?id=${idArtist}`,
+          `${baseURL}/artist/merchandise/sales`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setSalesData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    fetchSalesData();
-  }, [idArtist]);
+    if (session) {
+      fetchSalesData();
+    }
+  }, [session]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {

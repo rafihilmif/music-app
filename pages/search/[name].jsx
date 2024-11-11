@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Navbar from '@/components/user/Navbar';
-import { getSession } from 'next-auth/react';
+
 import { Edit, Delete, PlayArrow } from '@mui/icons-material';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { baseURL } from '@/baseURL';
 import { baseURLFile } from '@/baseURLFile';
 import usePlayerStore from '@/store/usePlayerStore';
-
+import { getSession, useSession } from 'next-auth/react';
 export default function index() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { name } = router.query;
 
   const [dataSongTop, setDataSongTop] = useState([]);
@@ -25,6 +26,8 @@ export default function index() {
   const [loading, setLoading] = useState(true);
   const [durations, setDurations] = useState({});
 
+  const [planStatus, setPlanStatus] = useState(null);
+
   const audioRef = useRef(null);
   const {
     setSongs,
@@ -35,24 +38,49 @@ export default function index() {
   } = usePlayerStore();
 
   useEffect(() => {
+    const fetchDataPlan = async () => {
+      if (status === 'authenticated' && session.user.role === 'fans') {
+        try {
+          const response = await axios.get(`${baseURL}/fans/plan/detail`, {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          setPlanStatus(response.data.type);
+        } catch (error) {
+          console.log("You're not fans");
+        }
+      }
+    };
+    if (session) {
+      fetchDataPlan();
+    }
+  }, [status, session]);
+
+  useEffect(() => {
     const fetchDataArtistTop = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/result/top/artist?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setNameArtistTop(response.data.name);
         setidArtistTop(response.data.id_artist);
         setImageArtistTop(response.data.avatar);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
     if (name) {
       fetchDataArtistTop();
     }
-  }, [name]);
+  }, [name, session]);
 
   const handlePlaySong = async (song, index) => {
     if (!song) return;
@@ -93,10 +121,35 @@ export default function index() {
   };
 
   useEffect(() => {
+    if (dataSongTop.length > 0) {
+      dataSongTop.forEach((song, index) => {
+        const audio = new Audio(`${baseURLFile}/assets/audio/${song.audio}`);
+        audio.onloadedmetadata = () => {
+          const duration = audio.duration;
+          const minutes = Math.floor(duration / 60);
+          const seconds = Math.floor(duration % 60);
+          const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+          setDurations((prev) => ({
+            ...prev,
+            [index]: formattedTime,
+          }));
+        };
+      });
+    }
+  }, [dataSongTop, baseURLFile]);
+
+  useEffect(() => {
     const fetchDataSongTop = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/result/top/song?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataSongTop(response.data);
         setSongs(response.data);
@@ -109,13 +162,19 @@ export default function index() {
     if (name) {
       fetchDataSongTop();
     }
-  }, [name]);
+  }, [name, session]);
 
   useEffect(() => {
     const fetchDataArtist = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/result/artist?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataArtist(response.data);
       } catch (error) {
@@ -127,13 +186,19 @@ export default function index() {
     if (name) {
       fetchDataArtist();
     }
-  }, [name]);
+  }, [name, session]);
 
   useEffect(() => {
     const fetchDataAlbum = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/result/album?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataAlbum(response.data);
       } catch (error) {
@@ -145,13 +210,19 @@ export default function index() {
     if (name) {
       fetchDataAlbum();
     }
-  }, [name]);
+  }, [name, session]);
 
   useEffect(() => {
     const fetchDataMerch = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/result/merchandise?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
 
         const merchandiseData = response.data;
@@ -174,7 +245,7 @@ export default function index() {
     if (name) {
       fetchDataMerch();
     }
-  }, [name]);
+  }, [name, session]);
 
   const fetchImageData = async (id_merch) => {
     try {
@@ -191,7 +262,15 @@ export default function index() {
   useEffect(() => {
     const fetchDataShows = async () => {
       try {
-        const response = await axios.get(`${baseURL}/result/show?name=${name}`);
+        const response = await axios.get(
+          `${baseURL}/result/show?name=${name},`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
         setDataShows(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -202,13 +281,19 @@ export default function index() {
     if (name) {
       fetchDataShows();
     }
-  }, [name]);
+  }, [name, session]);
 
   useEffect(() => {
     const fetchDataPlaylist = async () => {
       try {
         const response = await axios.get(
           `${baseURL}/result/playlist?name=${name}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
         );
         setDataPlaylist(response.data);
       } catch (error) {
@@ -220,7 +305,7 @@ export default function index() {
     if (name) {
       fetchDataPlaylist();
     }
-  }, [name]);
+  }, [name, session]);
 
   const [hoverIndex, setHoverIndex] = useState([]);
 
@@ -271,22 +356,33 @@ export default function index() {
                 onMouseLeave={() => onHoverLeave(index)}
                 className="flex cursor-pointer items-center space-x-4 rounded-lg p-3 hover:bg-gray-700"
               >
-                <div className="relative h-16 w-16">
+                <div className="flex items-center text-white">
+                  <button
+                    onClick={planStatus !== 'free' ? () => toggleSong() : null}
+                    className="relative mr-4 flex h-8 w-8 items-center justify-center text-[#a7a7a7] transition-opacity duration-300"
+                    disabled={planStatus === 'free'}
+                  >
+                    <span
+                      className={`absolute font-medium transition-opacity duration-300 ${
+                        hoverIndex[index] ? 'opacity-0' : 'opacity-100'
+                      }`}
+                    >
+                      {index + 1}
+                    </span>
+                    <PlayArrow
+                      className={`absolute transition-opacity duration-300 ${
+                        hoverIndex[index] ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
+                  </button>
                   <img
+                    className="mr-5 inline w-10 rounded-sm"
                     src={`${baseURLFile}/assets/image/song/${item.image}`}
-                    alt="album cover"
-                    className="h-16 w-16 rounded-lg"
+                    alt={item.name}
                   />
-                  <PlayArrow
-                    className={`absolute inset-0 m-auto h-8 w-8 text-white transition-opacity duration-300 ${hoverIndex[index] ? 'opacity-100' : 'opacity-0'}`}
-                  />
+                  <b>{item.name}</b>
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-white">
-                    {item.name}
-                  </h2>
-                  <p className="text-sm text-gray-400">{item.Artist.name}</p>
-                </div>
+                <p>{durations[index]}</p>
               </div>
             ))}
           </div>
@@ -336,7 +432,7 @@ export default function index() {
         <div className="flex flex-wrap gap-6 overflow-auto">
           {dataMerchandise.map((item, i) => (
             <a href={`/detail/merchandise/${item.id_merchandise}`} key={i}>
-              <div className="w-[140px] min-w-[140px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
+              <div className="w-[180px] min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
                 <div className="aspect-square w-full overflow-hidden rounded">
                   <img
                     className="h-full w-full object-cover"
@@ -354,17 +450,21 @@ export default function index() {
         </div>
       </div>
       <div className="mb-4 px-2">
-        <h1 className="my-2 text-2xl font-bold">Shows</h1>
+        <h1 className="my-5 text-2xl font-bold">Shows</h1>
         <div className="flex flex-wrap gap-6 overflow-auto">
           {dataShows.map((item, i) => (
             <a href={`/detail/show/${item.id_show}`} key={i}>
-              <div className="min-w-[140px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
-                <img
-                  className="h-44 w-44 rounded"
-                  src={`${baseURLFile}/assets/image/shows/${item.image}`}
-                />
-                <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                <p className="text-sm text-slate-200">{item.duedate}</p>
+              <div className="w-[180px] min-w-[180px] cursor-pointer rounded p-2 px-3 hover:bg-gray-700">
+                <div className="aspect-square w-full overflow-hidden rounded">
+                  <img
+                    className="h-full w-full object-cover"
+                    src={`${baseURLFile}/assets/image/shows/${item.image}`}
+                  />
+                </div>
+                <p lassName="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                <p className="truncate text-sm text-slate-200">
+                  {item.duedate}
+                </p>
               </div>
             </a>
           ))}
@@ -376,13 +476,15 @@ export default function index() {
           <div className="flex flex-wrap gap-6 overflow-auto">
             {dataPlaylist.map((item, i) => (
               <a href={`/playlist/${item.id_playlist}`} key={i}>
-                <div className="min-w-[140px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
-                  <img
-                    className="h-44 w-44 rounded"
-                    src={`${baseURLFile}/assets/image/playlist/${item.image}`}
-                  />
-                  <p className="mb-1 mt-2 font-bold">{item.name}</p>
-                  <p className="text-sm text-slate-200">Playlist</p>
+                <div className="w-[180px] min-w-[180px] cursor-pointer rounded p-2 px-2 hover:bg-gray-700">
+                  <div className="aspect-square w-full overflow-hidden rounded">
+                    <img
+                      className="h-full w-full object-cover"
+                      src={`${baseURLFile}/assets/image/playlist/${item.image}`}
+                    />
+                  </div>
+                  <p className="mb-1 mt-2 truncate font-bold">{item.name}</p>
+                  <p className="truncate text-sm text-slate-200">Playlist</p>
                 </div>
               </a>
             ))}

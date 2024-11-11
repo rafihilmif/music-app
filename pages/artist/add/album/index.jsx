@@ -9,7 +9,6 @@ export default function CreateAlbum() {
   const { data: session } = useSession();
   const router = useRouter();
 
-
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState(null);
@@ -62,17 +61,17 @@ export default function CreateAlbum() {
         `${baseURL}/artist/album/add`,
         formData,
         {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+        {
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total,
             );
             setImageProgress(percentCompleted);
-          },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-            'Content-Type': 'multipart/form-data',
           },
         },
       );

@@ -73,6 +73,10 @@ export default function orderById() {
     }
   }, [id, session]);
 
+  useEffect(() => {
+    console.log(dataItemOrder);
+  }, [dataItemOrder]);
+  
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',

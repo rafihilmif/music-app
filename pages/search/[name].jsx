@@ -70,6 +70,7 @@ export default function index() {
             },
           },
         );
+        
         setNameArtistTop(response.data.name);
         setidArtistTop(response.data.id_artist);
         setImageArtistTop(response.data.avatar);

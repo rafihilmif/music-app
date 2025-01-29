@@ -20,7 +20,7 @@ export default function SignUpFans() {
   useEffect(() => {
     const fetchDataGenre = async () => {
       try {
-        const response = await axios.get(`${baseURL}/browse/genre`);
+        const response = await axios.get(`${baseURL}/register/browse/genre`);
         setDataGenre(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -46,6 +46,7 @@ export default function SignUpFans() {
           text: response.data.message,
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
+        // console.log(response.data.data);
         }).then(() => {
            router.push(`/signup/success/${email}`);
         });

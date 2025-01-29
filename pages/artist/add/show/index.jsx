@@ -404,7 +404,7 @@ export default function index() {
         {
           headers: {
             Authorization: `Bearer ${session.accessToken}`,
-            'Content-Type': 'multipart/form-data',
+            
           },
         },
         {
@@ -419,15 +419,17 @@ export default function index() {
       if (response.status === 201) {
         setIsUploading(false);
         setImageProgress(0);
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: response.data.message,
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.reload();
-        });
+
+        console.log(response.data.data);
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success',
+        //   text: response.data.message,
+        //   confirmButtonText: 'OK',
+        //   confirmButtonColor: '#3085d6',
+        // }).then(() => {
+        //   window.location.reload();
+        // });
       }
     } catch (error) {
       setIsUploading(false);

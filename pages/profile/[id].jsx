@@ -367,8 +367,9 @@ export default function index() {
       );
 
       if (response.status === 200) {
-        setIsFollowed(true);
-        window.location.reload();
+        // setIsFollowed(true);
+        // window.location.reload();
+        console.log(response.data.data);
       }
     } catch (error) {
       const errorMessage =
@@ -377,6 +378,7 @@ export default function index() {
       console.error('Follow error:', error);
     }
   };
+
   const handleUnfollow = async () => {
     try {
       const response = await axios

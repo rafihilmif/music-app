@@ -163,17 +163,16 @@ export default function index() {
         setIsUploading(false);
         setImageProgress(0);
         setAudioProgress(0);
-
+        console.log(response.data.data);
         Swal.fire({
           icon: 'success',
           title: 'Success',
           text: response.data.message,
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.reload();
-          // console.log(response.data.message);
-          // console.log(response.data.data);
+        // }).then(() => {
+        //   window.location.reload();
+         
         });
       }
     } catch (error) {

@@ -80,15 +80,16 @@ export default function CreateAlbum() {
         setIsUploading(false);
         setImageProgress(0);
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: response.data.message,
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.reload();
-        });
+        console.log(response.data.data);
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success',
+        //   text: response.data.message,
+        //   confirmButtonText: 'OK',
+        //   confirmButtonColor: '#3085d6',
+        // }).then(() => {
+        //   window.location.reload();
+        // });
       }
     } catch (error) {
       setIsUploading(false);

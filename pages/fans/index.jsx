@@ -18,6 +18,7 @@ export default function MainLayoutFans() {
   const [dataRandomPlaylist, setDataRandomPlaylist] = useState([]);
   const [dataRandomMerchandise, setDataRandomMerchandise] = useState([]);
 
+  
   useEffect(() => {
     const fetchData = async () => {
       try {

@@ -258,15 +258,16 @@ export default function Index() {
         },
       );
       if (response.status === 201) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: response.data.message,
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.reload();
-        });
+        console.log(response.data);
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success',
+        //   text: response.data.message,
+        //   confirmButtonText: 'OK',
+        //   confirmButtonColor: '#3085d6',
+        // }).then(() => {
+        //   window.location.reload();
+        // });
       }
     } catch (error) {
       await Swal.fire({

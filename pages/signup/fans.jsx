@@ -30,7 +30,7 @@ export default function SignUpFans (){
           title: 'Success',
           text: response.data.message,
           confirmButtonText: 'OK',
-          confirmButtonColor: "#3085d6"
+          confirmButtonColor: '#3085d6'
         }).then(() => {
           router.push(`/signup/success/${email}`);
         });

@@ -147,9 +147,11 @@ export default function index() {
           text: response.data.message,
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.reload();
         });
+         console.log(response.data.data);
+        // }).then(() => {
+        //   window.location.reload();
+        // });
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
@@ -279,6 +281,7 @@ export default function index() {
                       type="file"
                       onChange={uploadImageToClient}
                       name="image"
+                      accept="image/*"
                       id="file"
                       class="sr-only"
                     />

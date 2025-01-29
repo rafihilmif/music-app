@@ -47,7 +47,7 @@ export default function index() {
           {
             headers: {
               Authorization: `Bearer ${session.accessToken}`,
-              'Content-Type': 'multipart/form-data',
+              'Content-Type': 'application/json',
             },
           },
         );
@@ -57,11 +57,15 @@ export default function index() {
         console.error('Error fetching data:', error);
       }
     };
-    if (idArtist) {
+    if (OldAlbum) {
       fetchDataAlbum();
     }
-  }, [idArtist, OldAlbum]);
+  }, [OldAlbum, session]);
 
+  useEffect(() => {
+    console.log(dataAlbum);
+  }, [dataAlbum]);
+  
   useEffect(() => {
     const fetchDataSong = async () => {
       try {
@@ -70,7 +74,7 @@ export default function index() {
           {
             headers: {
               Authorization: `Bearer ${session.accessToken}`,
-              'Content-Type': 'multipart/form-data',
+              'Content-Type': 'application/json',
             },
           },
         );
@@ -84,8 +88,6 @@ export default function index() {
         setOldImage(response.data.image);
         setOldAlbumId(response.data.id_album);
         setIsChecked(response.data.status === 1);
-
-        // setOldAudio(response.data.audio);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -95,7 +97,7 @@ export default function index() {
     if (id) {
       fetchDataSong();
     }
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
     const fetchDataGenre = async () => {
@@ -103,7 +105,7 @@ export default function index() {
         const response = await axios.get(`${baseURL}/genre?name=${OldGenre}`, {
           headers: {
             Authorization: `Bearer ${session.accessToken}`,
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         });
         setDataGenre(response.data);
@@ -116,7 +118,7 @@ export default function index() {
     if (OldGenre) {
       fetchDataGenre();
     }
-  }, [OldGenre]);
+  }, [OldGenre, session]);
 
   const uploadImageToClient = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -180,15 +182,16 @@ export default function index() {
         },
       );
       if (response.status === 200) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: response.data.message,
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.reload();
-        });
+        console.log(response.data.data);
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success',
+        //   text: response.data.message,
+        //   confirmButtonText: 'OK',
+        //   confirmButtonColor: '#3085d6',
+        // }).then(() => {
+        //   window.location.reload();
+        // });
       }
     } catch (error) {
       console.error('Error updating song:', error);

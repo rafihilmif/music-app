@@ -177,7 +177,7 @@ export default function index() {
       );
       const { token } = response.data;
       setSnapToken(token);
-      // console.log(response.data.data);
+      console.log(response.data.data);
       window.snap.pay(token, {
         onSuccess: function (result) {
           router.push('/fans');

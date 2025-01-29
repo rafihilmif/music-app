@@ -62,6 +62,8 @@ export default function index() {
         );
         setDataOrderPayment(response.data.data);
         setTotalOrder(response.data.total);
+        console.log(response.data.data);
+        console.log(response.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
